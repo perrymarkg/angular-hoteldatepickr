@@ -1,0 +1,31 @@
+<div class="card">
+    <div class="card-body">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-4"><a href="" (click)="setMonth($event, 'prev')">Prev</a></div>
+                <div class="col-md-4"> {{ startDateOfMonth | date:'LLL yyyy'}}</div>
+                <div class="col-md-4"><a href="" (click)="setMonth($event, 'next')">Next</a></div>
+            </div>
+            <div class="row text-center">
+                <div class="col-day">Sun</div>
+                <div class="col-day">Mon</div>
+                <div class="col-day">Tue</div>
+                <div class="col-day">Wed</div>
+                <div class="col-day">Thurs</div>
+                <div class="col-day">Fri</div>
+                <div class="col-day">Sat</div>
+            </div>
+            <div class="row days" *ngIf="days">
+                <div *ngFor="let day of days" class="col-day border" 
+                    [ngClass]="getClass(day)"
+                    >
+                    <a href="#" 
+                        class="d-block"
+                        
+                        (click)="selectDay($event, day)" 
+                        >{{ day | date: 'd' }}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

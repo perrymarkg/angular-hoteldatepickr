@@ -1,0 +1,25 @@
+.calendar {
+    background:red;
+}
+.col-day {
+    height: 40px;
+    line-height: 40px;    
+    -ms-flex: 0 0 14.285%;
+    flex: 0 0 14.285%;
+    max-width: 14.285%;
+}
+.col-day.grey {
+    background:#cccccc;
+}
+.col-day.today {
+    background:red;
+}
+.col-day.selected {
+    background:#333333;
+}
+.col-day.selected a {
+    color:#ffffff;
+}
+.days .col-day {
+    text-align: center;    
+}

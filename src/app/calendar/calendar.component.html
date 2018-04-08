@@ -2,20 +2,43 @@
     <div class="card-body">
         <div class="container">
             <div class="row text-center">
-                <div class="col-md-4"><a href="" (click)="setMonth($event, 'prev')">Prev</a></div>
+                <div class="col-md-4">
+                    <a href="" 
+                        (click)="cycleMonth($event, 'prev')">Prev</a>
+                    </div>
                 <div class="col-md-4" (clickOutside)="hideSelections()"> 
-                    <a href="" (click)="showMonthSelection($event)">{{ startDateOfMonth | date:'LLL'}}</a>
-                    <a href="" (click)="showYearSelection($event)">{{ startDateOfMonth | date:'yyyy'}}</a>
+                    <a href="" (click)="showMonthSelection($event)">{{ activeMonth | date:'LLL'}}</a>
+                    <a href="" (click)="showYearSelection($event)">{{ activeMonth | date:'yyyy'}}</a>
                     <div *ngIf="showMS" class="months selection p-3 border rounded" >
                         <div class="row">
-                            <div class="col-md-3" *ngFor="let month of months">{{ month }}</div>
+                            <div class="col-md-3" *ngFor="let month of months">
+                                <label 
+                                    class="d-block"
+                                    [ngClass]="{'current': isSelectedMonth(month)}"
+                                    (click)="setMonth($event, month)">{{ month }}</label>
+                            </div>
                         </div>
                     </div>
                     <div class="years selection p-3 border rounded" *ngIf="showYS">
-                        Year Selection
+                        <div class="row">
+                            <div class="col-md-6 text-left">
+                                <label (click)="cycleYear('prev')">Prev</label>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <label (click)="cycleYear('next')">Next</label>
+                            </div>
+                            <div class="col-md-3" *ngFor="let year of years">
+                                <label
+                                    class="d-block"
+                                    [ngClass]="{'current': isSelectedYear(year)}" 
+                                    (click)="setYear($event, year)">{{ year }}</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4"><a href="" (click)="setMonth($event, 'next')">Next</a></div>
+                <div class="col-md-4">
+                    <a href="" (click)="cycleMonth($event, 'next')">Next</a>
+                </div>
             </div>
             <div class="row text-center">
                 <div class="col-day">Sun</div>

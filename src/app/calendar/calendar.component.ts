@@ -12,6 +12,7 @@ export class CalendarComponent implements OnInit {
     @Output() dateSelected = new EventEmitter<Date>();
 
     @Input() date;
+    @Input() disabledDates: Array<any>;
     selectedDate: Date;
 
     today = new Date();
@@ -27,9 +28,19 @@ export class CalendarComponent implements OnInit {
     nextMonth: Date;
     nextMonthStartDay: number;
 
+    showMS = false; // Month Selection
+    showYS = false; // Year Selection
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
     constructor( private datepipe: DatePipe) {}
 
     ngOnInit() {
+        this.setVars();
+
+        this.initCalendar();
+    }
+
+    setVars() {
         this.days = new Array( this.totalDays ).fill(0);
 
         if ( this.date ) {
@@ -44,9 +55,15 @@ export class CalendarComponent implements OnInit {
             this.startDateOfMonth.setDate(1);
         }
 
-        this.today.setHours(0, 0, 0, 0);
+        if ( this.disabledDates ) {
+            this.disabledDates = this.disabledDates.map( (date: string) => {
+                const d = new Date( date );
+                d.setHours(0, 0, 0, 0);
+                return d.getTime();
+            } );
+        }
 
-        this.initCalendar();
+        this.today.setHours(0, 0, 0, 0);
     }
 
     initCalendar() {
@@ -146,5 +163,39 @@ export class CalendarComponent implements OnInit {
         }
 
         return classes.toString().replace(/,/g, ' ');
+    }
+
+    isDateDisabled( date: Date ) {
+        let isDisabled = false;
+        if ( date.getTime() < this.today.getTime() ) {
+            isDisabled = true;
+        }
+
+        if ( this.disabledDates ) {
+            this.disabledDates.map( el => {
+                if ( el === date.getTime() ) {
+                    isDisabled = true;
+                }
+            });
+        }
+
+        return isDisabled;
+    }
+
+    showMonthSelection( event ) {
+        event.preventDefault();
+        this.hideSelections();
+        this.showMS = !this.showMS;
+    }
+
+    showYearSelection( event ) {
+        event.preventDefault();
+        this.hideSelections();
+        this.showYS = !this.showYS;
+    }
+
+    hideSelections() {
+        this.showMS = false;
+        this.showYS = false;
     }
 }

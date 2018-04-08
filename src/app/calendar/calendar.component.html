@@ -3,7 +3,18 @@
         <div class="container">
             <div class="row text-center">
                 <div class="col-md-4"><a href="" (click)="setMonth($event, 'prev')">Prev</a></div>
-                <div class="col-md-4"> {{ startDateOfMonth | date:'LLL yyyy'}}</div>
+                <div class="col-md-4" (clickOutside)="hideSelections()"> 
+                    <a href="" (click)="showMonthSelection($event)">{{ startDateOfMonth | date:'LLL'}}</a>
+                    <a href="" (click)="showYearSelection($event)">{{ startDateOfMonth | date:'yyyy'}}</a>
+                    <div *ngIf="showMS" class="months selection p-3 border rounded" >
+                        <div class="row">
+                            <div class="col-md-3" *ngFor="let month of months">{{ month }}</div>
+                        </div>
+                    </div>
+                    <div class="years selection p-3 border rounded" *ngIf="showYS">
+                        Year Selection
+                    </div>
+                </div>
                 <div class="col-md-4"><a href="" (click)="setMonth($event, 'next')">Next</a></div>
             </div>
             <div class="row text-center">
@@ -19,11 +30,18 @@
                 <div *ngFor="let day of days" class="col-day border" 
                     [ngClass]="getClass(day)"
                     >
-                    <a href="#" 
-                        class="d-block"
-                        
-                        (click)="selectDay($event, day)" 
-                        >{{ day | date: 'd' }}</a>
+                    <ng-template *ngIf="isDateDisabled(day); then tDisabled else tDefault"></ng-template>
+                    <ng-template #tDisabled>
+                        <span class="d-block">{{day | date: 'd'}}</span>
+                    </ng-template>
+                    <ng-template #tDefault>
+                        <a href="#" 
+                            class="d-block"
+                            (click)="selectDay($event, day)" 
+                            >{{ day | date: 'd' }}</a>
+                    </ng-template>
+
+                    
                 </div>
             </div>
         </div>

@@ -23,3 +23,10 @@
 .days .col-day {
     text-align: center;    
 }
+.selection,
+.selection {
+    position: absolute;
+    background:#ffffff;
+    width: 300px;
+    margin:auto;
+}

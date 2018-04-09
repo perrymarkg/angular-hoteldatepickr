@@ -55,17 +55,19 @@
                 *ngFor="let day of days" 
                 class="col-day" 
                 [ngClass]="getClass(day)"
+                (mouseenter)="highlightDay($event, day)"
+                (mouseleave)="highlightDay($event, day)"
                 >
                 <ng-template *ngIf="isDateClickable(day); then tDisabled else tDefault"></ng-template>
                 <ng-template #tDisabled>
                     <span [ngClass]="{'disabled': isDateDisabled(day)}">
-
                         <ng-template *ngIf="day then tDate else tEmptyDate"></ng-template>
                     </span>
                 </ng-template>
                 <ng-template #tDefault>
                     <a href="#" 
-                        (click)="selectDay($event, day)" 
+                        (click)="selectDay($event, day)"
+                        
                         >{{ day | date: 'd' }}</a>
                 </ng-template>
 

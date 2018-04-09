@@ -101,6 +101,10 @@
 .col-day.selected a {
     color:#fff;
 }
+.col-day.highlight a {
+    background:pink;
+    color:#fff;
+}
 .col-day a:hover,
 .col-day.selected a:hover {
     text-decoration: none;

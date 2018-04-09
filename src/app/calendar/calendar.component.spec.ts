@@ -1,34 +1,36 @@
 import { TestBed, async } from '@angular/core/testing';
 import { CalendarComponent } from './calendar.component';
 describe('CalendarComponentTest', () => {
-    
+
     it('should initialize var activemonth to current month', async(() => {
-        let comp = new CalendarComponent();
-        let currentMonth = new Date();
+        const comp = new CalendarComponent();
+        const currentMonth = new Date();
         currentMonth.setDate(1);
         currentMonth.setHours(0, 0, 0, 0);
         comp.setVars();
 
         expect(comp.activeMonth.getTime()).toBe(currentMonth.getTime());
-        
+
     }));
     it('should initialize vars when `date` is passed', () => {
-        let comp = new CalendarComponent();
-        let dateString = '2018-06-09';
-        let dateObj = new Date(dateString);
+        const comp = new CalendarComponent();
+        const dateString = '2018-06-09';
+        const dateObj = new Date(dateString);
 
-        comp.date = dateObj;
+        comp.date = dateString;
         comp.setVars();
 
-        console.log(comp.activeMonth, dateObj);
-        expect(comp.activeMonth.getTime()).toBe(dateObj.getTime());
+
+        expect(comp.activeMonth.getMonth()).toBe(dateObj.getMonth());
     });
-    it('should not disable today', () => {
-        let comp = new CalendarComponent();
+    it('should not disable today when date is selected', () => {
+        const comp = new CalendarComponent();
         comp.setVars();
         comp.initCalendar();
-        let today = new Date();
+        const today = new Date();
         today.setHours(0, 0, 0, 0);
-        expect(comp.isDateDisabled(today)).toBe(false);
-    })
+        expect(comp.isDateClickable(today)).toBe(false);
+        comp.selectDay(new Event('click'), new Date('2018-04-13'));
+        expect(comp.isDateClickable(today)).toBe(false);
+    });
 });

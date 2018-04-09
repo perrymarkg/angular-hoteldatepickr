@@ -8,8 +8,14 @@
   <div class="row">
     <div class="col-md-6">
       <app-calendar 
-        [date]="'2018-08-28'"
-        [disabledDates]="['2018-08-25']"></app-calendar>
+        [date]="dateTest"
+        [disabledDates]="['2018-08-25', '2018-08-26']"></app-calendar>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-md-6">
+      <app-range-pickr></app-range-pickr>
     </div>
   </div>
 </div>

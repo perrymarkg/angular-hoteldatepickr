@@ -1,5 +1,5 @@
 .calendar-wrapper {
-    width:300px;
+    width:100%;
     padding:.3em;
     border:1px solid #cccccc;
     border-radius: 3px;
@@ -95,8 +95,11 @@
     padding:0.3em 0;
     border:1px solid transparent;
 }
+.col-day span.disabled {
+    text-decoration: line-through;
+}
 .col-day.selected a {
-    color:#ffffff;
+    color:#fff;
 }
 .col-day a:hover,
 .col-day.selected a:hover {

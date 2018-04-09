@@ -2,6 +2,7 @@
     <div class="c-header clearfix">
         <div class="left">
             <a href="" 
+                *ngIf="!showYS && !showMS"
                 (click)="cycleMonth($event, 'prev')">&lsaquo;</a>
         </div>
         <div class="center">
@@ -10,7 +11,9 @@
             
         </div>
         <div class="right">
-            <a href="" (click)="cycleMonth($event, 'next')">&rsaquo;</a>
+            <a href="" 
+                *ngIf="!showYS && !showMS"
+                (click)="cycleMonth($event, 'next')">&rsaquo;</a>
         </div>
     </div>
     <div class="c-body">
@@ -53,9 +56,12 @@
                 class="col-day" 
                 [ngClass]="getClass(day)"
                 >
-                <ng-template *ngIf="isDateDisabled(day); then tDisabled else tDefault"></ng-template>
+                <ng-template *ngIf="isDateClickable(day); then tDisabled else tDefault"></ng-template>
                 <ng-template #tDisabled>
-                    <span class="d-block">{{day | date: 'd'}}</span>
+                    <span [ngClass]="{'disabled': isDateDisabled(day)}">
+
+                        <ng-template *ngIf="day then tDate else tEmptyDate"></ng-template>
+                    </span>
                 </ng-template>
                 <ng-template #tDefault>
                     <a href="#" 
@@ -63,6 +69,8 @@
                         >{{ day | date: 'd' }}</a>
                 </ng-template>
 
+                <ng-template #tDate>{{ day | date: 'd' }}</ng-template>
+                <ng-template #tEmptyDate>&nbsp;</ng-template>
                 
             </div>
         </div>

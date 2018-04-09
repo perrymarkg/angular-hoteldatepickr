@@ -8,4 +8,5 @@ import { CalendarComponent } from './calendar/calendar.component';
 })
 export class AppComponent {
   title = 'app';
+  dateTest = new Date('2018-08-25');
 }

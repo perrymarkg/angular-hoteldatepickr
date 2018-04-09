@@ -1,0 +1,11 @@
+.range-pickr-wrapper {
+    font-size:0;
+}
+.from,
+.to {
+    display: inline-block;
+    width: 49%;
+}
+.from {
+    margin-right:2%;
+}

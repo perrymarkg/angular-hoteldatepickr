@@ -6,6 +6,7 @@ import { DatePipe } from '@angular/common';
 import { AppComponent } from './app.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { DatePickrComponent } from './datepickr/date-pickr.component';
+import { RangePickrComponent } from './rangepickr/range-pickr.component';
 
 // Third-Party
 import { ClickOutsideModule } from 'ng4-click-outside';
@@ -15,7 +16,8 @@ import { ClickOutsideModule } from 'ng4-click-outside';
   declarations: [
     AppComponent,
     CalendarComponent,
-    DatePickrComponent
+    DatePickrComponent,
+    RangePickrComponent
   ],
   imports: [
     BrowserModule,

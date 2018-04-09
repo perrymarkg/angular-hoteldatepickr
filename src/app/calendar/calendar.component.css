@@ -1,32 +1,178 @@
-.calendar {
-    background:red;
+.calendar-wrapper {
+    width:300px;
+    padding:.3em;
+    border:1px solid #cccccc;
+    border-radius: 3px;
+    font-size:0;
+    background:#fff;
+    box-shadow: 2px 2px 2px rgba(0,0,0,0.5);
+    z-index: 9999;
+}
+.calendar-wrapper a:hover {
+    text-decoration: none;
+}
+.c-header {
+    height: 40px;
+    line-height: 40px;
+}
+.c-header .left,
+.c-header .right,
+.c-header .center {
+    font-size:14px;
+    vertical-align: middle;
+}
+.c-header .left,
+.c-header .right {
+    display: inline-block;
+    width:25%;
+}
+.c-header .left a,
+.c-header .right a {
+    display: inline-block;
+    font-weight:bold;
+    font-size:16px;
+    padding:0 1em;
+    line-height: 40px;
+    height: 40px;
+    color:#333;
+}
+.c-header .left a:hover,
+.c-header .right a:hover {
+    background:#efefef;
+}
+.c-header .right {
+    text-align: right;
+}
+.c-header .center {
+    display: inline-block;
+    position: relative;
+    width: 50%;
+    text-align: center;
+}
+.c-header .center > a {
+    display: inline-block;
+    line-height: 40px;
+    height: 40px;
+    padding:0 1em;
+    color:#333;
+}
+.c-header .center > a:hover {
+    background:#efefef;
+}
+.c-body {
+    position: relative;
 }
 .col-day {
-    height: 40px;
-    line-height: 40px;    
-    -ms-flex: 0 0 14.285%;
-    flex: 0 0 14.285%;
+    font-size:14px;
+    display: inline-block;
+    width: 14.285%;
     max-width: 14.285%;
+    text-align: center;
+    border:1px solid #eee;
+    border-right:none;
+    border-bottom:none;
 }
-.col-day.grey {
-    background:#cccccc;
+.col-day:first-child {
+    border-left:none;
 }
-.col-day.today {
-    background:red;
+.col-day:nth-child(7n+1){
+    border-left:none;
 }
-.col-day.selected {
-    background:#333333;
+.col-day label {
+    margin:0;
+    padding:0.3em 0;
+    font-weight: bold;
+}
+.col-day a {
+    color:#333;
+}
+.col-day span {
+    color:#aaa;
+}
+.col-day a,
+.col-day span{
+    display:block;
+    padding:0.3em 0;
+    border:1px solid transparent;
 }
 .col-day.selected a {
     color:#ffffff;
 }
+.col-day a:hover,
+.col-day.selected a:hover {
+    text-decoration: none;
+    border-color:red;
+    background:pink;
+    color:#fff;
+}
+.col-day.grey {
+    background:#eee;
+}
+.col-day.grey a,
+.col-day.grey span {
+    color:#bbb;
+}
+
+.col-day.today a {
+    background:red;
+}
+.col-day.selected a{
+    background:#333;
+}
+
 .days .col-day {
     text-align: center;    
 }
-.selection,
 .selection {
+    display: inline-block;
     position: absolute;
-    background:#ffffff;
-    width: 300px;
+    left:0;
+    right:0;
+    bottom:0;
+    top:0;
+    background:#fff;
+    width: 100%;
+    height: auto;
     margin:auto;
+    font-size:0;
+    line-height: normal;
+    z-index: 50;
+    border-top:1px solid #eee;
+}
+.selection label {
+    margin:0;
+    cursor:pointer;
+    font-size:14px;
+}
+.selection .prev,
+.selection .next {
+    display: inline-block;
+    width: 50%;
+}
+.selection .prev {
+    text-align: left;
+}
+.selection .next {
+    text-align: right;
+}
+.selection .items label {
+    text-align: center;
+    font-size:14px;
+    display:inline-block;
+    width: 33.333%;
+    padding:.8em 0;
+    margin:0;
+}
+.selection .btns {
+    text-align: center;
+}
+.months.selection .items label {
+    width:25%;
+}
+.selection .items label:hover {
+    background:#eeeeee;
+}
+.selection .items label.current {
+    background:#000;
+    color:#fff;
 }

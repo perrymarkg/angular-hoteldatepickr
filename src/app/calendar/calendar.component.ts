@@ -1,5 +1,4 @@
 import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
-import { DatePipe } from '@angular/common';
 import { DateModel } from '../date.model';
 
 @Component({
@@ -31,9 +30,10 @@ export class CalendarComponent implements OnInit {
     showMS = false; // Month Selection
     showYS = false; // Year Selection
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     years: Array<number>;
 
-    constructor( private datepipe: DatePipe) {}
+    constructor() {}
 
     ngOnInit() {
         this.setVars();
@@ -43,20 +43,17 @@ export class CalendarComponent implements OnInit {
 
     setVars() {
 
-        this.days = new Array( this.totalDays ).fill(0);
-
         if ( this.date ) {
             this.selectedDate = new Date(this.date);
             this.selectedDate.setHours(0, 0, 0, 0);
             this.activeMonth = new Date(this.date);
-            this.activeMonth.setDate(1);
         }
 
         if ( !this.selectedDate ) {
+            this.today.setHours(0, 0, 0, 0);
             this.activeMonth = new Date( this.today );
-            this.activeMonth.setDate(1);
         }
-
+        
         if ( this.disabledDates ) {
             this.disabledDates = this.disabledDates.map( (date: string) => {
                 const d = new Date( date );
@@ -65,13 +62,14 @@ export class CalendarComponent implements OnInit {
             } );
         }
 
-        this.today.setHours(0, 0, 0, 0);
+        this.days = new Array( this.totalDays ).fill(0);
+        this.activeMonth.setDate(1);
         
     }
 
     createYears() {
         const limit = 4
-        this.years = new Array(12).fill(0).map( (el, index) => {
+        this.years = new Array(9).fill(0).map( (el, index) => {
             if( index <= 4) {
                 el = this.activeMonth.getFullYear() - (4 - index);
             } else {
@@ -207,12 +205,14 @@ export class CalendarComponent implements OnInit {
 
     showMonthSelection( event ) {
         event.preventDefault();
+        event.stopPropagation();
         this.hideSelections();
         this.showMS = !this.showMS;
     }
 
     showYearSelection( event ) {
         event.preventDefault();
+        event.stopPropagation();
         this.hideSelections();
         this.showYS = !this.showYS;
         if( this.showYS ) {
@@ -229,7 +229,7 @@ export class CalendarComponent implements OnInit {
         let start
 
         if( type === 'prev') {
-            start = this.years[0] - 12;
+            start = this.years[0] - 9;
         }
 
         if( type === 'next') {
@@ -249,8 +249,8 @@ export class CalendarComponent implements OnInit {
         if( index >= 0 && this.activeMonth.getMonth() !== index ) {
             this.activeMonth.setMonth(index);
             this.reInitCalendar();
-            this.hideSelections();
         }
+        this.hideSelections();
     }
 
     isSelectedMonth( month: string ) {
@@ -267,7 +267,7 @@ export class CalendarComponent implements OnInit {
         if( this.activeMonth.getFullYear() !== year ){
             this.activeMonth.setFullYear( year );
             this.reInitCalendar();
-            this.hideSelections();
         }
+        this.hideSelections();
     }
 }

@@ -1,72 +1,71 @@
-<div class="card">
-    <div class="card-body">
-        <div class="container">
-            <div class="row text-center">
-                <div class="col-md-4">
-                    <a href="" 
-                        (click)="cycleMonth($event, 'prev')">Prev</a>
-                    </div>
-                <div class="col-md-4" (clickOutside)="hideSelections()"> 
-                    <a href="" (click)="showMonthSelection($event)">{{ activeMonth | date:'LLL'}}</a>
-                    <a href="" (click)="showYearSelection($event)">{{ activeMonth | date:'yyyy'}}</a>
-                    <div *ngIf="showMS" class="months selection p-3 border rounded" >
-                        <div class="row">
-                            <div class="col-md-3" *ngFor="let month of months">
-                                <label 
-                                    class="d-block"
-                                    [ngClass]="{'current': isSelectedMonth(month)}"
-                                    (click)="setMonth($event, month)">{{ month }}</label>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="years selection p-3 border rounded" *ngIf="showYS">
-                        <div class="row">
-                            <div class="col-md-6 text-left">
-                                <label (click)="cycleYear('prev')">Prev</label>
-                            </div>
-                            <div class="col-md-6 text-right">
-                                <label (click)="cycleYear('next')">Next</label>
-                            </div>
-                            <div class="col-md-3" *ngFor="let year of years">
-                                <label
-                                    class="d-block"
-                                    [ngClass]="{'current': isSelectedYear(year)}" 
-                                    (click)="setYear($event, year)">{{ year }}</label>
-                            </div>
-                        </div>
+<div class="calendar-wrapper">
+    <div class="c-header clearfix">
+        <div class="left">
+            <a href="" 
+                (click)="cycleMonth($event, 'prev')">&lsaquo;</a>
+        </div>
+        <div class="center">
+            <a href="" (click)="showMonthSelection($event)">{{ activeMonth | date:'LLL'}}</a>
+            <a href="" (click)="showYearSelection($event)">{{ activeMonth | date:'yyyy'}}</a>
+            
+        </div>
+        <div class="right">
+            <a href="" (click)="cycleMonth($event, 'next')">&rsaquo;</a>
+        </div>
+    </div>
+    <div class="c-body">
+        <div 
+            class="months selection"
+            *ngIf="showMS" 
+            (clickOutside)="hideSelections()" >
+                <div class="items">
+                    <label 
+                        *ngFor="let month of months"
+                        [ngClass]="{'current': isSelectedMonth(month)}"
+                        (click)="setMonth($event, month)">{{ month }}</label>
+                    <div class="btns">
+                        <label (click)="hideSelections()" class="bt full">Close</label>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <a href="" (click)="cycleMonth($event, 'next')">Next</a>
+        </div>
+        <div 
+            class="years selection" 
+            *ngIf="showYS" 
+            (clickOutside)="hideSelections()">
+                <div class="items" >
+                    <label
+                        *ngFor="let year of years"
+                        [ngClass]="{'current': isSelectedYear(year)}" 
+                        (click)="setYear($event, year)">{{ year }}</label>
+                    <div class="btns">
+                        <label (click)="hideSelections()">Close</label>
+                        <label (click)="cycleYear('prev')">&lsaquo;</label>
+                        <label (click)="cycleYear('next')">&rsaquo;</label>
+                    </div>
                 </div>
             </div>
-            <div class="row text-center">
-                <div class="col-day">Sun</div>
-                <div class="col-day">Mon</div>
-                <div class="col-day">Tue</div>
-                <div class="col-day">Wed</div>
-                <div class="col-day">Thurs</div>
-                <div class="col-day">Fri</div>
-                <div class="col-day">Sat</div>
-            </div>
-            <div class="row days" *ngIf="days">
-                <div *ngFor="let day of days" class="col-day border" 
-                    [ngClass]="getClass(day)"
-                    >
-                    <ng-template *ngIf="isDateDisabled(day); then tDisabled else tDefault"></ng-template>
-                    <ng-template #tDisabled>
-                        <span class="d-block">{{day | date: 'd'}}</span>
-                    </ng-template>
-                    <ng-template #tDefault>
-                        <a href="#" 
-                            class="d-block"
-                            (click)="selectDay($event, day)" 
-                            >{{ day | date: 'd' }}</a>
-                    </ng-template>
+        <div class="c-weeks clearfix">
+            <div class="col-day" *ngFor="let label of daysOfWeek"><label>{{ label }}</label></div>
+        </div>
+        <div class="c-days">
+            <div 
+                *ngFor="let day of days" 
+                class="col-day" 
+                [ngClass]="getClass(day)"
+                >
+                <ng-template *ngIf="isDateDisabled(day); then tDisabled else tDefault"></ng-template>
+                <ng-template #tDisabled>
+                    <span class="d-block">{{day | date: 'd'}}</span>
+                </ng-template>
+                <ng-template #tDefault>
+                    <a href="#" 
+                        (click)="selectDay($event, day)" 
+                        >{{ day | date: 'd' }}</a>
+                </ng-template>
 
-                    
-                </div>
+                
             </div>
         </div>
     </div>
 </div>
+

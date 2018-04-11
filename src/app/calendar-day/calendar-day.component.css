@@ -1,0 +1,29 @@
+span, a {
+    display: block;
+    padding:0.3em 0;
+    border:1px solid transparent;
+}
+a {
+    color:#333333;
+}
+a.disabled {
+    text-decoration: line-through;
+}
+a.today {
+    background:#F5D76E;
+}
+a.selected {
+    background:#333;
+    color:#fff;
+}
+a:hover {
+    text-decoration: none;
+    background:#19B5FE;
+    color:#fff;
+}
+span {
+    color:#aaa;
+}
+span.empty {
+    background:#e7e7e7;
+}

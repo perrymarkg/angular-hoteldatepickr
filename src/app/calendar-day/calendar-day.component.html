@@ -1,0 +1,9 @@
+
+<a href="" 
+    *ngIf="day.date && day.clickable" 
+    [ngClass]="day.classes"
+    (click)="dateClick($event, day)">{{ day.date | date: 'd'}}</a>
+<span *ngIf="day.date && !day.clickable" class="disabled">{{ day.date | date: 'd'}}</span>
+<span *ngIf="!day.date" class="empty">&nbsp;</span>
+
+

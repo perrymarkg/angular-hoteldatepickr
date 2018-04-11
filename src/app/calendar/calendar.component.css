@@ -83,49 +83,6 @@
     padding:0.3em 0;
     font-weight: bold;
 }
-.col-day a {
-    color:#333;
-}
-.col-day span {
-    color:#aaa;
-}
-.col-day a,
-.col-day span{
-    display:block;
-    padding:0.3em 0;
-    border:1px solid transparent;
-}
-.col-day span.disabled {
-    text-decoration: line-through;
-}
-.col-day.selected a {
-    color:#fff;
-}
-.col-day.highlight a {
-    background:pink;
-    color:#fff;
-}
-.col-day a:hover,
-.col-day.selected a:hover {
-    text-decoration: none;
-    border-color:red;
-    background:pink;
-    color:#fff;
-}
-.col-day.grey {
-    background:#eee;
-}
-.col-day.grey a,
-.col-day.grey span {
-    color:#bbb;
-}
-
-.col-day.today a {
-    background:red;
-}
-.col-day.selected a{
-    background:#333;
-}
 
 .days .col-day {
     text-align: center;    

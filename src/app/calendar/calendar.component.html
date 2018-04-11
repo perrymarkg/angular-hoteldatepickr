@@ -52,13 +52,16 @@
         </div>
         <div class="c-days">
             <div 
-                *ngFor="let day of days" 
+                *ngFor="let day of days; let i = index" 
                 class="col-day" 
-                [ngClass]="getClass(day)"
                 (mouseenter)="highlightDay($event, day)"
                 (mouseleave)="highlightDay($event, day)"
                 >
-                <ng-template *ngIf="isDateClickable(day); then tDisabled else tDefault"></ng-template>
+                
+                <app-calendar-day 
+                    [day]="day"
+                    (clicked)="selectDay($event)"></app-calendar-day>
+                <!-- <ng-template *ngIf="day.clickable; then tDefault else tDisabled"></ng-template>
                 <ng-template #tDisabled>
                     <span [ngClass]="{'disabled': isDateDisabled(day)}">
                         <ng-template *ngIf="day then tDate else tEmptyDate"></ng-template>
@@ -67,12 +70,11 @@
                 <ng-template #tDefault>
                     <a href="#" 
                         (click)="selectDay($event, day)"
-                        
-                        >{{ day | date: 'd' }}</a>
+                        >{{ day.date | date: 'd' }}</a>
                 </ng-template>
 
-                <ng-template #tDate>{{ day | date: 'd' }}</ng-template>
-                <ng-template #tEmptyDate>&nbsp;</ng-template>
+                <ng-template #tDate>{{ day.date | date: 'd' }}</ng-template>
+                <ng-template #tEmptyDate>&nbsp;</ng-template> -->
                 
             </div>
         </div>

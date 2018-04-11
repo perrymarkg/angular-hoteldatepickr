@@ -1,5 +1,6 @@
 import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
 import { DateModel } from '../date.model';
+import { DatePipe } from '@angular/common';
 
 @Component({
     selector: 'app-calendar',
@@ -19,7 +20,7 @@ export class CalendarComponent implements OnInit {
 
     today = new Date();
     totalDays = 35;
-    days: Array<Date | boolean>;
+    days: Array<any>;
 
     activeMonth: Date;
     daysInMonth: number;
@@ -45,12 +46,13 @@ export class CalendarComponent implements OnInit {
     @Output() rangeStarted = new EventEmitter<Date>();
     @Output() rangeEnded = new EventEmitter<Date>();
 
-    constructor() {
+    constructor(private dp: DatePipe) {
         this.today.setHours(0, 0, 0, 0);
     }
 
     ngOnInit() {
-        this.setVars();
+        this.initDisabledDates();
+        this.initDates();
         this.initCalendar();
     }
 
@@ -58,7 +60,7 @@ export class CalendarComponent implements OnInit {
         return Object.prototype.toString.call(this.date) === '[object Date]';
     }
 
-    setVars() {
+    initDates() {
 
         // Set the selected date and the activemonth date object
         if ( this.date ) {
@@ -76,6 +78,12 @@ export class CalendarComponent implements OnInit {
             this.activeMonth = new Date( this.today );
         }
 
+        this.days = new Array( this.totalDays ).fill(0);
+        this.activeMonth.setDate(1);
+
+    }
+
+    initDisabledDates() {
         if ( this.disabledDates ) {
             this.disabledDates = this.disabledDates.map( (date: any) => {
                 let d;
@@ -93,10 +101,6 @@ export class CalendarComponent implements OnInit {
                 return d.getTime();
             } );
         }
-
-        this.days = new Array( this.totalDays ).fill(0);
-        this.activeMonth.setDate(1);
-
     }
 
     createYears() {
@@ -144,64 +148,79 @@ export class CalendarComponent implements OnInit {
         this.nextMonthStartDay = 1;
         // @Todo: Improve
         this.days = this.days.map( (el, index) => {
+            let date;
+            let clickable = true;
             const day = (index - this.activeMonth.getDay() ) + 1;
-            // https://stackoverflow.com/questions/41340836/why-does-date-accept-negative-values
-            // TLDR; new Date(2018, 6, -2) will subtract two days from year(2018) month(6 - July in zero-base) thus date is Jun 28 2018
-            // TLDR; new Date(2018, 8, 133) will add 133 days from year(2018) month(8 - Sep in zero-base) thus date is Jan 11 2019
-            const date = new Date(
-                this.activeMonth.getFullYear(),
-                this.activeMonth.getMonth(),
-                day
-            );
 
             if ( this.type && day < 1 || this.type && day > this.daysInMonth) {
-                return false;
+                date = false;
+            } else {
+                // https://stackoverflow.com/questions/41340836/why-does-date-accept-negative-values
+                // TLDR; new Date(2018, 6, -2) will subtract two days from year(2018) month(6 - July in zero-base) thus date is Jun 28 2018
+                // TLDR; new Date(2018, 8, 133) will add 133 days from year(2018) month(8 - Sep in zero-base) thus date is Jan 11 2019
+                date = new Date(
+                    this.activeMonth.getFullYear(),
+                    this.activeMonth.getMonth(),
+                    day
+                );
+
+                if ( date.getTime() < this.today.getTime() ) {
+                    clickable = false;
+                }
+
             }
 
-            return date;
+            return new DateModel(date, this.getClass(date), clickable);
+
         });
     }
 
+    setDayClasses() {
+        this.days = this.days.map( (el, i) => {
+            el.classes = this.getClass(el.date);
+            return el;
+        });
+    }
 
     getDaysInMonth(month, year): number {
         // Setting day parameter to 0 means one day less than first day of the month.
         return new Date(year, month, 0).getDate();
     }
 
-    selectDay( event, date: Date ) {
-        event.preventDefault();
-        event.stopPropagation();
+    selectDay( event: any ) {
+
+        this.selectedDate = event.obj.date;
 
         if ( this.type === 'range') {
-            this.registerClicks(date);
+            this.registerClicks(event);
             this.checkIfRangeAllowed();
         }
 
-        this.selectedDate = date;
-
-        if ( date.getMonth() > this.activeMonth.getMonth() || date.getMonth() < this.activeMonth.getMonth() ) {
-            this.activeMonth.setMonth( date.getMonth() );
+        if ( event.obj.date.getMonth() > this.activeMonth.getMonth() || event.obj.date.getMonth() < this.activeMonth.getMonth() ) {
+            this.activeMonth.setMonth( event.obj.date.getMonth() );
             this.reInitCalendar();
         }
 
-        this.dateSelected.emit( date );
+        this.setDayClasses();
+
+        this.dateSelected.emit( event.obj.date );
     }
 
-    registerClicks( date: Date) {
+    registerClicks( event: any) {
 
-        if ( this.rangeStart && date.getTime() < this.rangeStart.getTime() ) {
+        if ( this.rangeStart && event.obj.date.getTime() < this.rangeStart.getTime() ) {
             this.clickStarted = false;
         }
 
         if ( !this.clickStarted ) {
             this.clickStarted = true;
-            this.rangeStart = date;
+            this.rangeStart = event.obj.date;
             this.rangeEnd = null;
-            this.rangeStarted.emit(date);
+            this.rangeStarted.emit(event.obj.date);
         } else {
             this.clickStarted = false;
-            this.rangeEnd = date;
-            this.rangeEnded.emit(date);
+            this.rangeEnd = event.obj.date;
+            this.rangeEnded.emit(event.obj.date);
             this.dateHovered = null;
         }
 
@@ -237,7 +256,7 @@ export class CalendarComponent implements OnInit {
         this.reInitCalendar();
     }
 
-    getClass( date: any) {
+    getClass( date: Date) {
 
         const classes = [];
 
@@ -277,34 +296,8 @@ export class CalendarComponent implements OnInit {
 
         }
 
-        return classes.toString().replace(/,/g, ' ');
-    }
-
-    isDateClickable( date: any ) {
-
-        if ( !date ) {
-            return true;
-        }
-
-        let isClickable = false;
-
-        if ( date.getTime() < this.today.getTime() ) {
-            isClickable = true;
-        }
-
-        if ( this.isDateDisabled(date) ) {
-            isClickable = true;
-        }
-
-        return isClickable;
-    }
-
-    isDateDisabled( date: any ) {
-        if ( !date ) {
-            return false;
-        }
-
-        return this.disabledDates && this.disabledDates.indexOf(date.getTime()) >= 0;
+        // return classes.toString().replace(/,/g, ' ');
+        return classes;
     }
 
     showMonthSelection( event ) {

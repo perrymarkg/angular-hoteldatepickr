@@ -14,6 +14,7 @@ export class CalendarDayComponent implements OnInit {
     constructor() {}
 
     ngOnInit() {
+        console.log(this.day);
         if ( !this.day && this.day.date.getTime() === '1535241600000' ) { // Aug 26 1989
             console.log(this.day);
         }

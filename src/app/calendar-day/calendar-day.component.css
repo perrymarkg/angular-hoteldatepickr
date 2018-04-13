@@ -10,10 +10,15 @@ a.disabled {
     text-decoration: line-through;
 }
 a.today {
-    background:#F5D76E;
+    background:#fdcb6e;
+    color:#fff;
+}
+a.highlight {
+    background:#19B5FE;
+    color:#fff;
 }
 a.selected {
-    background:#333;
+    background:#40739e;
     color:#fff;
 }
 a:hover {
@@ -23,6 +28,9 @@ a:hover {
 }
 span {
     color:#aaa;
+}
+span.disabled {
+    text-decoration: line-through;
 }
 span.empty {
     background:#e7e7e7;

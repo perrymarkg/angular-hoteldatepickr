@@ -21,10 +21,17 @@ a.selected {
     background:#40739e;
     color:#fff;
 }
+a.off-month {
+    background:#e7e7e7;
+    color:#aaa;
+}
 a:hover {
     text-decoration: none;
     background:#19B5FE;
     color:#fff;
+}
+a.disabled:hover {
+    text-decoration: line-through;
 }
 span {
     color:#aaa;

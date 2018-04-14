@@ -15,6 +15,7 @@ export class CalendarComponent implements OnInit {
     @Input() date: string | Date;
     @Input() minDate: string | Array<string>;
     @Input() disabledDates: Array<any>;
+    selectedIndex: number;
     selectedDate: Date;
 
 
@@ -39,7 +40,7 @@ export class CalendarComponent implements OnInit {
 
     // Range Vars
     clickStarted = false;
-    clickEnded = true;
+    clickEnded: boolean;
     dateHovered: Date;
     @Output() rangeStart: Date;
     @Output() rangeEnd: Date;
@@ -164,6 +165,7 @@ export class CalendarComponent implements OnInit {
                     day
                 );
 
+                // Disable clicks on previous days from today and disabled dates
                 if ( date.getTime() < this.today.getTime() ||
                     ( this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0 ) ) {
                     clickable = false;
@@ -171,7 +173,7 @@ export class CalendarComponent implements OnInit {
 
             }
 
-            return new DateModel(date, this.getClass(date), clickable);
+            return new DateModel(date, this.getClass(date), clickable, index);
 
         });
     }
@@ -197,23 +199,20 @@ export class CalendarComponent implements OnInit {
             this.checkIfRangeAllowed();
         }
 
-        if ( event.obj.date.getMonth() > this.activeMonth.getMonth() || 
+        if ( event.obj.date.getMonth() > this.activeMonth.getMonth() ||
         event.obj.date.getMonth() < this.activeMonth.getMonth() ) {
             this.activeMonth.setMonth( event.obj.date.getMonth() );
             this.reInitCalendar();
         }
 
         this.setDayClasses();
-
         this.dateSelected.emit( event.obj.date );
     }
 
     registerClicks( event: any) {
 
         if ( this.rangeStart && event.obj.date.getTime() < this.rangeStart.getTime() ) {
-            this.clickStarted = false;
-            this.rangeStart = null;
-            this.dateHovered = null;
+            this.resetRange();
         }
 
         if ( !this.clickStarted ) {
@@ -230,21 +229,35 @@ export class CalendarComponent implements OnInit {
 
     }
 
-    checkIfRangeAllowed() {
-        if ( this.rangeStart ) {
+    resetRange() {
+        this.clickStarted = false;
+        this.rangeStart = null;
+        this.rangeEnd = null;
+        this.dateHovered = null;
+        this.selectedDate = null;
+    }
 
+    // @Todo fix
+    checkIfRangeAllowed() {
+        if ( this.rangeEnd && this.isDateBetweenDisabledDates( this.rangeEnd ) ) {
+            this.resetRange();
         }
     }
 
     highlightDay(event: Event, day: any) {
+
+        if ( this.type !== 'range') {
+            return;
+        }
+
         if ( this.clickStarted && event.type === 'mouseenter') {
             this.dateHovered = day.date;
         }
 
-        if ( this.clickStarted && event.type === 'mouseleave') {
-            this.dateHovered = null;
+        if ( this.clickStarted ) {
+            this.setDayClasses();
         }
-        this.setDayClasses();
+
     }
 
     cycleMonth(event, type) {
@@ -265,12 +278,10 @@ export class CalendarComponent implements OnInit {
 
         const classes = [];
 
-        if ( !date ) {
-            classes.push('grey');
-        } else {
+        if (date) {
 
             if ( date.getMonth() < this.activeMonth.getMonth() || date.getMonth() > this.activeMonth.getMonth() ) {
-                classes.push('grey');
+                classes.push('off-month');
             }
 
             if ( date.getTime() === this.today.getTime() ) {
@@ -285,8 +296,15 @@ export class CalendarComponent implements OnInit {
                 classes.push('selected');
             }
 
-            if( this.isDateDisabled( date ) ) {
-                classes.push('disabled')
+            if ( this.isDateDisabled( date ) ) {
+                classes.push('disabled');
+            }
+
+            if ( this.type === 'range' &&
+                this.clickStarted &&
+                this.disabledDates &&
+                this.isDateBetweenDisabledDates( date ) ) {
+                classes.push('disabled');
             }
 
             if (
@@ -310,6 +328,10 @@ export class CalendarComponent implements OnInit {
 
     isDateDisabled( date: Date ) {
         return this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0;
+    }
+
+    isDateBetweenDisabledDates( date: Date ) {
+        return this.disabledDates.every( (time) => time <= date.getTime() );
     }
 
     // Year Month Selections

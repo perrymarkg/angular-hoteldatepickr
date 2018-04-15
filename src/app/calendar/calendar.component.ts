@@ -15,7 +15,6 @@ export class CalendarComponent implements OnInit {
     @Input() date: string | Date;
     @Input() minDate: string | Array<string>;
     @Input() disabledDates: Array<any>;
-    selectedIndex: number;
     selectedDate: Date;
 
 

@@ -64,7 +64,7 @@ export class CalendarComponent implements OnInit {
     initDates() {
 
         // Set the selected date and the activemonth date object
-        if ( this.date ) {
+        if ( !this.type && this.date ) {
             if ( typeof this.date === 'string') {
                 this.selectedDate = new Date(this.date);
                 this.activeMonth = new Date(this.date);
@@ -73,6 +73,10 @@ export class CalendarComponent implements OnInit {
                 this.activeMonth = new Date(this.date.getTime());
             }
             this.selectedDate.setHours(0, 0, 0, 0);
+        }
+
+        if ( this.type === 'range') {
+
         }
 
         if ( !this.selectedDate ) {
@@ -147,7 +151,7 @@ export class CalendarComponent implements OnInit {
 
     setDays() {
         this.nextMonthStartDay = 1;
-        // @Todo: Improve
+
         this.days = this.days.map( (el, index) => {
             let date;
             let clickable = true;
@@ -237,9 +241,8 @@ export class CalendarComponent implements OnInit {
         this.selectedDate = null;
     }
 
-    // @Todo fix
     checkIfRangeAllowed() {
-        if ( this.rangeEnd && this.isDateBetweenDisabledDates( this.rangeEnd ) ) {
+        if ( this.rangeEnd && this.disabledDates && this.isDateBetweenDisabledDates( this.rangeEnd ) ) {
             this.resetRange();
         }
     }
@@ -276,7 +279,7 @@ export class CalendarComponent implements OnInit {
 
     getClass( date: Date) {
 
-        const classes = [];
+        let classes = [];
 
         if (date) {
 
@@ -288,6 +291,10 @@ export class CalendarComponent implements OnInit {
                 classes.push('today');
             }
 
+            if ( this.isDateDisabled( date ) ) {
+                classes.push('disabled');
+            }
+
             if (
                 this.selectedDate && date.getTime() === this.selectedDate.getTime() ||
                 this.rangeStart && this.rangeStart.getTime() === date.getTime() ||
@@ -296,31 +303,35 @@ export class CalendarComponent implements OnInit {
                 classes.push('selected');
             }
 
-            if ( this.isDateDisabled( date ) ) {
-                classes.push('disabled');
+            if ( this.type === 'range') {
+                classes = this.getRangeClass(date, classes);
             }
 
-            if ( this.type === 'range' &&
-                this.clickStarted &&
-                this.disabledDates &&
-                this.isDateBetweenDisabledDates( date ) ) {
-                classes.push('disabled');
-            }
+        }
 
-            if (
-                (
-                    this.clickStarted && this.dateHovered &&
-                    date.getTime() > this.rangeStart.getTime() &&
-                    this.dateHovered && date.getTime() <= this.dateHovered.getTime()
-                ) || (
-                    this.rangeStart && this.rangeEnd &&
-                    date.getTime() > this.rangeStart.getTime() &&
-                    date.getTime() < this.rangeEnd.getTime()
-                )
-              ) {
-                classes.push('highlight');
-            }
+        return classes;
+    }
 
+    getRangeClass( date: Date, classes: Array<string> ) {
+
+        if ( this.clickStarted &&
+            this.disabledDates &&
+            this.isDateBetweenDisabledDates( date ) ) {
+            classes.push('disabled');
+        }
+
+        if (
+            (
+                this.clickStarted && this.dateHovered &&
+                date.getTime() > this.rangeStart.getTime() &&
+                this.dateHovered && date.getTime() <= this.dateHovered.getTime()
+            ) || (
+                this.rangeStart && this.rangeEnd &&
+                date.getTime() > this.rangeStart.getTime() &&
+                date.getTime() < this.rangeEnd.getTime()
+            )
+          ) {
+            classes.push('highlight');
         }
 
         return classes;
@@ -331,7 +342,16 @@ export class CalendarComponent implements OnInit {
     }
 
     isDateBetweenDisabledDates( date: Date ) {
-        return this.disabledDates.every( (time) => time <= date.getTime() );
+        let disabled = false;
+        for ( let x = 0; x <= this.disabledDates.length; x++) {
+            if ( this.rangeStart &&
+                this.disabledDates[x] > this.rangeStart.getTime() &&
+                date.getTime() >= this.disabledDates[x] ) {
+                disabled = true;
+                break;
+            }
+        }
+        return disabled;
     }
 
     // Year Month Selections

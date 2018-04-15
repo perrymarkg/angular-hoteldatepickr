@@ -1,12 +1,6 @@
 <div class="container">
   <div class="row">
     <div class="col-md-6">
-      <app-date-pickr [dateFormat]="'E MMM dd, yyyy'"></app-date-pickr>
-    </div>
-  </div>
-  <hr>
-  <div class="row">
-    <div class="col-md-6">
       <app-calendar 
         [date]="dateTest"
         [disabledDates]="['2018-08-25', '2018-08-26']"></app-calendar>
@@ -15,8 +9,13 @@
   <hr>
   <div class="row">
     <div class="col-md-6">
-      <app-range-pickr
-        [disabledDates]="['2018-04-19']"></app-range-pickr>
+      <app-date-pickr [dateFormat]="'E MMM dd, yyyy'"></app-date-pickr>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-md-6">
+        <app-date-pickr [dateFormat]="'E MMM dd, yyyy'" [type]="'range'" [name]=""></app-date-pickr>
     </div>
   </div>
 </div>

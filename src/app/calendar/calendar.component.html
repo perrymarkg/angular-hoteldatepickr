@@ -8,7 +8,6 @@
         <div class="center">
             <a href="" (click)="showMonthSelection($event)">{{ activeMonth | date:'LLL'}}</a>
             <a href="" (click)="showYearSelection($event)">{{ activeMonth | date:'yyyy'}}</a>
-            
         </div>
         <div class="right">
             <a href="" 
@@ -56,25 +55,9 @@
                 class="col-day" 
                 (mouseenter)="highlightDay($event, day)"
                 >
-                
                 <app-calendar-day 
                     [day]="day"
                     (clicked)="selectDay($event)"></app-calendar-day>
-                <!-- <ng-template *ngIf="day.clickable; then tDefault else tDisabled"></ng-template>
-                <ng-template #tDisabled>
-                    <span [ngClass]="{'disabled': isDateDisabled(day)}">
-                        <ng-template *ngIf="day then tDate else tEmptyDate"></ng-template>
-                    </span>
-                </ng-template>
-                <ng-template #tDefault>
-                    <a href="#" 
-                        (click)="selectDay($event, day)"
-                        >{{ day.date | date: 'd' }}</a>
-                </ng-template>
-
-                <ng-template #tDate>{{ day.date | date: 'd' }}</ng-template>
-                <ng-template #tEmptyDate>&nbsp;</ng-template> -->
-                
             </div>
         </div>
     </div>

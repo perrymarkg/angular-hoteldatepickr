@@ -1,7 +1,7 @@
 <div class="datepickr"  (clickOutside)="onClickedOutside($event)">
     <input class="form-control" 
         (click)="showCalendar()" 
-        [(ngModel)]="selectedDate" 
+        [(ngModel)]="output" 
         [name]="name + '-datepickr'"
         readonly />
     <app-calendar 
@@ -9,5 +9,6 @@
         class="calendar" 
         (dateSelected)="setSelectedDate( $event )"
         [date]="selectedDate"
-        [type]="type" ></app-calendar>
+        [type]="type"
+        [disabledDates]="disabledDates" ></app-calendar>
 </div>

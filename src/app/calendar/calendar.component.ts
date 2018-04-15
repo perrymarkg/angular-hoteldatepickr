@@ -9,7 +9,7 @@ import { DatePipe } from '@angular/common';
 })
 export class CalendarComponent implements OnInit {
 
-    @Output() dateSelected = new EventEmitter<Date>();
+    @Output() dateSelected = new EventEmitter<any>();
 
     @Input() type: string;
     @Input() date: string | Date;
@@ -42,10 +42,9 @@ export class CalendarComponent implements OnInit {
     clickStarted = false;
     clickEnded: boolean;
     dateHovered: Date;
-    @Output() rangeStart: Date;
-    @Output() rangeEnd: Date;
-    @Output() rangeStarted = new EventEmitter<Date>();
-    @Output() rangeEnded = new EventEmitter<Date>();
+
+    @Input() rangeStart: Date;
+    @Input() rangeEnd: Date;
 
     constructor(private dp: DatePipe) {
         this.today.setHours(0, 0, 0, 0);
@@ -75,12 +74,12 @@ export class CalendarComponent implements OnInit {
             this.selectedDate.setHours(0, 0, 0, 0);
         }
 
-        if ( this.type === 'range') {
-
+        if ( !this.selectedDate || (this.type === 'range' && !this.rangeStart ) ) {
+            this.activeMonth = new Date( this.today );
         }
 
-        if ( !this.selectedDate ) {
-            this.activeMonth = new Date( this.today );
+        if ( this.type === 'range' && this.rangeStart && this.rangeEnd) {
+            this.activeMonth = new Date( this.rangeStart );
         }
 
         this.days = new Array( this.totalDays ).fill(0);
@@ -210,12 +209,16 @@ export class CalendarComponent implements OnInit {
         }
 
         this.setDayClasses();
-        this.dateSelected.emit( event.obj.date );
+        this.dateSelected.emit({
+            selected: event.obj.date,
+            from: this.rangeStart,
+            to: this.rangeEnd
+        });
     }
 
     registerClicks( event: any) {
 
-        if ( this.rangeStart && event.obj.date.getTime() < this.rangeStart.getTime() ) {
+        if ( !this.isRangeAllowed( event.obj.date ) ) {
             this.resetRange();
         }
 
@@ -223,11 +226,9 @@ export class CalendarComponent implements OnInit {
             this.clickStarted = true;
             this.rangeStart = event.obj.date;
             this.rangeEnd = null;
-            this.rangeStarted.emit(event.obj.date);
         } else {
             this.clickStarted = false;
             this.rangeEnd = event.obj.date;
-            this.rangeEnded.emit(event.obj.date);
             this.dateHovered = null;
         }
 
@@ -241,10 +242,15 @@ export class CalendarComponent implements OnInit {
         this.selectedDate = null;
     }
 
+    isRangeAllowed( date: Date ) {
+        //console.log(this.rangeStart, date.getTime(), this.rangeStart.getTime() );
+        return this.rangeStart && ( date.getTime() <= this.rangeStart.getTime() );
+    }
+
     checkIfRangeAllowed() {
-        if ( this.rangeEnd && this.disabledDates && this.isDateBetweenDisabledDates( this.rangeEnd ) ) {
+        /* if ( this.rangeEnd && this.disabledDates && this.isDateBetweenDisabledDates( this.rangeEnd ) ) {
             this.resetRange();
-        }
+        } */
     }
 
     highlightDay(event: Event, day: any) {

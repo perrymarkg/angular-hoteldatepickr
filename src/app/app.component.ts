@@ -9,4 +9,6 @@ import { CalendarComponent } from './calendar/calendar.component';
 export class AppComponent {
   title = 'app';
   dateTest = new Date('2018-08-25');
+
+  disabledDates = ['2018-04-24', '2018-04-19'];
 }

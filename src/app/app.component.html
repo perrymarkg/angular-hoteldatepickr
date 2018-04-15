@@ -15,7 +15,11 @@
   <hr>
   <div class="row">
     <div class="col-md-6">
-        <app-date-pickr [dateFormat]="'E MMM dd, yyyy'" [type]="'range'" [name]=""></app-date-pickr>
+        <app-date-pickr 
+          [dateFormat]="'E MMM dd, yyyy'" 
+          [type]="'range'" 
+          [name]="date"
+          [disabledDates]="disabledDates"></app-date-pickr>
     </div>
   </div>
 </div>

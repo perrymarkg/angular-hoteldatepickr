@@ -218,6 +218,7 @@ export class CalendarComponent implements OnInit {
 
     registerClicks( event: any) {
 
+        //  @tODO fix this
         if ( !this.isRangeAllowed( event.obj.date ) ) {
             this.resetRange();
         }

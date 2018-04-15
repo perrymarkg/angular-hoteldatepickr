@@ -199,11 +199,11 @@ export class CalendarComponent implements OnInit {
 
         if ( this.type === 'range') {
             this.registerClicks(event);
-            this.checkIfRangeAllowed();
         }
 
         if ( event.obj.date.getMonth() > this.activeMonth.getMonth() ||
-        event.obj.date.getMonth() < this.activeMonth.getMonth() ) {
+            event.obj.date.getMonth() < this.activeMonth.getMonth() ) {
+                
             this.activeMonth.setMonth( event.obj.date.getMonth() );
             this.reInitCalendar();
         }
@@ -218,11 +218,10 @@ export class CalendarComponent implements OnInit {
 
     registerClicks( event: any) {
 
-        //  @tODO fix this
-        if ( !this.isRangeAllowed( event.obj.date ) ) {
-            this.resetRange();
-        }
-
+        if( this.rangeStart && ( event.obj.date.getTime() <= this.rangeStart.getTime() ) ) {
+            this.resetClicks();
+        } 
+       
         if ( !this.clickStarted ) {
             this.clickStarted = true;
             this.rangeStart = event.obj.date;
@@ -233,25 +232,17 @@ export class CalendarComponent implements OnInit {
             this.dateHovered = null;
         }
 
+        if ( this.rangeEnd && this.disabledDates && this.isDateBetweenDisabledDates( this.rangeEnd ) ) {
+            this.resetClicks();
+        }
     }
 
-    resetRange() {
+    resetClicks() {
         this.clickStarted = false;
         this.rangeStart = null;
         this.rangeEnd = null;
         this.dateHovered = null;
         this.selectedDate = null;
-    }
-
-    isRangeAllowed( date: Date ) {
-        //console.log(this.rangeStart, date.getTime(), this.rangeStart.getTime() );
-        return this.rangeStart && ( date.getTime() <= this.rangeStart.getTime() );
-    }
-
-    checkIfRangeAllowed() {
-        /* if ( this.rangeEnd && this.disabledDates && this.isDateBetweenDisabledDates( this.rangeEnd ) ) {
-            this.resetRange();
-        } */
     }
 
     highlightDay(event: Event, day: any) {

@@ -27,7 +27,19 @@ export class DatePickrComponent implements OnInit {
     ngOnInit() {
 
         if ( this.type === 'range' ) {
-            this.output = 'From > To';
+
+            if( typeof this.from === 'string') {
+                this.from = new Date(this.from);
+            }
+    
+            if( typeof this.to === 'string') {
+                this.to = new Date(this.to);
+            }
+
+            this.from.setHours(0, 0, 0, 0);
+            this.to.setHours(0, 0, 0, 0);
+            this.output = this.formatDate(this.from, 'From') + ' > ' + this.formatDate(this.to, 'To');
+
             return;
         }
 
@@ -52,13 +64,24 @@ export class DatePickrComponent implements OnInit {
         this.selectedDate = this.dp.transform( event.selected, this.dateFormat);
 
         if ( this.type === 'range' ) {
-            this.from = event.from ? this.dp.transform( event.from, this.dateFormat) : 'From';
-            this.to = event.to ? this.dp.transform( event.to ) : 'To';
+            this.from = event.from;
+            this.to = event.to;
 
-            this.output = this.from + ' > ' + this.to;
+            this.output = this.formatDate(this.from, 'From') + ' > ' + this.formatDate(this.to, 'To');
             return;
         }
 
-        this.output = this.dp.transform( event.selected, this.dateFormat);
+        this.output = this.formatDate( event.selected, '' );
     }
+
+    formatDate(date: Date | String, def: string) {
+
+        if( typeof date === 'string' ) {
+            date = new Date(date);
+        }
+
+        const result = this.dp.transform(date, this.dateFormat);
+        return result ? result : def;
+    }
+
 }

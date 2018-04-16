@@ -202,7 +202,7 @@ export class CalendarComponent implements OnInit {
 
         if ( event.obj.date.getMonth() > this.activeMonth.getMonth() ||
             event.obj.date.getMonth() < this.activeMonth.getMonth() ) {
-                
+
             this.activeMonth.setMonth( event.obj.date.getMonth() );
             this.reInitCalendar();
         }
@@ -217,10 +217,10 @@ export class CalendarComponent implements OnInit {
 
     registerClicks( event: any) {
 
-        if( this.rangeStart && ( event.obj.date.getTime() <= this.rangeStart.getTime() ) ) {
+        if ( this.rangeStart && ( event.obj.date.getTime() <= this.rangeStart.getTime() ) ) {
             this.resetClicks();
-        } 
-       
+        }
+
         if ( !this.clickStarted ) {
             this.clickStarted = true;
             this.rangeStart = event.obj.date;

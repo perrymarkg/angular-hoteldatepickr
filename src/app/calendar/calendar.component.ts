@@ -56,13 +56,13 @@ export class CalendarComponent implements OnInit {
     }
 
     isValidDateObj( date: any) {
-        return Object.prototype.toString.call(this.date) === '[object Date]';
+        return Object.prototype.toString.call(date) === '[object Date]';
     }
 
     initDates() {
 
         // Set the selected date and the activemonth date object
-        if ( !this.type && this.date ) {
+        if ( !this.type && this.date && this.isValidDateObj(this.date) ) {
             if ( typeof this.date === 'string') {
                 this.selectedDate = new Date(this.date);
                 this.activeMonth = new Date(this.date);
@@ -88,24 +88,270 @@ export class CalendarComponent implements OnInit {
 
     initDisabledDates() {
         if ( this.disabledDates ) {
-            this.disabledDates = this.disabledDates.map( (date: any) => {
+            this.disabledDates = this.disabledDates.map( (date: any, index) => {
                 let d;
-
+                
                 if ( typeof date === 'string') {
                     d = new Date( date );
-                } else if ( this.isValidDateObj(date) ) {
+                } else {
                     d = date;
                 }
 
-                d.setHours(0, 0, 0, 0);
                 if ( this.selectedDate && d.getTime() === this.selectedDate.getTime() ) {
                     console.warn('Selected Date is part of disabled date');
                 }
-                return d.getTime();
+                // @Todo throw error on invalid date object or clean up invalid object
+                if( this.isValidDateObj(d) ) {
+                    d.setHours(0, 0, 0, 0);
+                    return d.getTime();
+                }
+                
             } );
         }
     }
 
+    
+    initCalendar() {
+        this.setMonths();
+        this.setDays();
+    }
+    
+    reInitCalendar() {
+        this.activeMonth = new Date(this.activeMonth);
+        this.initCalendar();
+    }
+    
+    setMonths() {
+        
+        this.daysInMonth = this.getDaysInMonth(
+            this.activeMonth.getMonth() + 1,
+            this.activeMonth.getFullYear()
+        );
+
+        this.prevMonthLastDate = new Date(
+            this.activeMonth.getFullYear(),
+            this.activeMonth.getMonth(), 0
+        );
+        
+        this.prevMonthStartDay = this.prevMonthLastDate.getDate() - this.activeMonth.getDay() + 1;
+        
+        this.nextMonth = new Date( this.activeMonth.getFullYear(), this.activeMonth.getMonth() + 1, 1);
+        
+    }
+    
+    setDays() {
+        this.nextMonthStartDay = 1;
+        
+        this.days = this.days.map( (el, index) => {
+            let date;
+            let clickable = true;
+            const day = (index - this.activeMonth.getDay() ) + 1;
+            
+            if ( this.type && day < 1 || this.type && day > this.daysInMonth) {
+                date = false;
+            } else {
+                // https://stackoverflow.com/questions/41340836/why-does-date-accept-negative-values
+                // TLDR; new Date(2018, 6, -2) will subtract two days from year(2018) month(6 - July in zero-base) thus date is Jun 28 2018
+                // TLDR; new Date(2018, 8, 133) will add 133 days from year(2018) month(8 - Sep in zero-base) thus date is Jan 11 2019
+                date = new Date(
+                    this.activeMonth.getFullYear(),
+                    this.activeMonth.getMonth(),
+                    day
+                );
+                
+                // Disable clicks on previous days from today and disabled dates
+                if ( date.getTime() < this.today.getTime() ||
+                ( this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0 ) ) {
+                    clickable = false;
+                }
+                
+            }
+            
+            return new DateModel(date, this.getClass(date), clickable, index);
+            
+        });
+    }
+    
+    setDayClasses() {
+        this.days = this.days.map( (el, i) => {
+            el.classes = this.getClass(el.date);
+            return el;
+        });
+    }
+
+    getDaysInMonth(month, year): number {
+        // Setting day parameter to 0 means one day less than first day of the month.
+        return new Date(year, month, 0).getDate();
+    }
+    
+    selectDay( event: any ) {
+        
+        this.selectedDate = event.obj.date;
+        
+        if ( this.type === 'range') {
+            this.registerClicks(event);
+        }
+        
+        if ( event.obj.date.getMonth() > this.activeMonth.getMonth() ||
+            event.obj.date.getMonth() < this.activeMonth.getMonth() ) {
+                
+                this.activeMonth.setMonth( event.obj.date.getMonth() );
+            this.reInitCalendar();
+        }
+        
+        this.setDayClasses();
+        this.dateSelected.emit({
+            selected: event.obj.date,
+            from: this.rangeStart,
+            to: this.rangeEnd
+        });
+    }
+    
+    registerClicks( event: any) {
+        
+        if( this.rangeStart && ( event.obj.date.getTime() <= this.rangeStart.getTime() ) ) {
+            this.resetClicks();
+        } 
+        
+        if ( !this.clickStarted ) {
+            this.clickStarted = true;
+            this.rangeStart = event.obj.date;
+            this.rangeEnd = null;
+        } else {
+            this.clickStarted = false;
+            this.rangeEnd = event.obj.date;
+            this.dateHovered = null;
+        }
+        
+        if ( this.rangeEnd && this.disabledDates && this.isDateBetweenDisabledDates( this.rangeEnd ) ) {
+            this.resetClicks();
+        }
+    }
+    
+    resetClicks() {
+        this.clickStarted = false;
+        this.rangeStart = null;
+        this.rangeEnd = null;
+        this.dateHovered = null;
+        this.selectedDate = null;
+    }
+    
+    highlightDay(event: Event, day: any) {
+        
+        if ( this.type !== 'range') {
+            return;
+        }
+        
+        if ( this.clickStarted && event.type === 'mouseenter') {
+            this.dateHovered = day.date;
+        }
+        
+        if ( this.clickStarted ) {
+            this.setDayClasses();
+        }
+        
+    }
+    
+    cycleMonth(event, type) {
+        event.preventDefault();
+        
+        if ( type === 'next') {
+            this.activeMonth.setMonth( this.activeMonth.getMonth() + 1);
+        }
+        
+        if ( type === 'prev') {
+            this.activeMonth.setMonth( this.activeMonth.getMonth() - 1);
+        }
+        
+        this.reInitCalendar();
+    }
+
+    getClass( date: Date) {
+        
+        let classes = [];
+        
+        if (date) {
+            
+            if ( date.getMonth() < this.activeMonth.getMonth() || date.getMonth() > this.activeMonth.getMonth() ) {
+                classes.push('off-month');
+            }
+            
+            if ( date.getTime() === this.today.getTime() ) {
+                classes.push('today');
+            }
+            
+            if ( this.isDateDisabled( date ) ) {
+                classes.push('disabled');
+            }
+            
+            if (
+                this.selectedDate && date.getTime() === this.selectedDate.getTime() ||
+                this.rangeStart && this.rangeStart.getTime() === date.getTime() ||
+                this.rangeEnd && this.rangeEnd.getTime() === date.getTime()
+            ) {
+                classes.push('selected');
+            }
+            
+            if ( this.type === 'range') {
+                classes = this.getRangeClass(date, classes);
+            }
+            
+        }
+        
+        return classes;
+    }
+    
+    getRangeClass( date: Date, classes: Array<string> ) {
+        
+        if ( this.clickStarted &&
+            this.disabledDates &&
+            this.isDateBetweenDisabledDates( date ) ) {
+                classes.push('disabled');
+            }
+            
+            if (
+            (
+                this.clickStarted && this.dateHovered &&
+                date.getTime() > this.rangeStart.getTime() &&
+                this.dateHovered && date.getTime() <= this.dateHovered.getTime()
+            ) || (
+                this.rangeStart && this.rangeEnd &&
+                date.getTime() > this.rangeStart.getTime() &&
+                date.getTime() < this.rangeEnd.getTime()
+            )
+        ) {
+            classes.push('highlight');
+        }
+        
+        return classes;
+    }
+    
+    isDateDisabled( date: Date ) {
+        return this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0;
+    }
+    
+    isDateBetweenDisabledDates( date: Date ) {
+        let disabled = false;
+        for ( let x = 0; x <= this.disabledDates.length; x++) {
+            if ( this.rangeStart &&
+                this.disabledDates[x] > this.rangeStart.getTime() &&
+                date.getTime() >= this.disabledDates[x] ) {
+                    disabled = true;
+                    break;
+                }
+            }
+            return disabled;
+        }
+        
+        // Year Month Selections
+        
+        showMonthSelection( event ) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.hideSelections();
+        this.showMS = !this.showMS;
+    }
+    
     createYears() {
         const total = 9;
         const limit = 4;
@@ -119,247 +365,6 @@ export class CalendarComponent implements OnInit {
         });
     }
 
-    initCalendar() {
-        this.setMonths();
-        this.setDays();
-    }
-
-    reInitCalendar() {
-        this.activeMonth = new Date(this.activeMonth);
-        this.initCalendar();
-    }
-
-    setMonths() {
-
-        this.daysInMonth = this.getDaysInMonth(
-            this.activeMonth.getMonth() + 1,
-            this.activeMonth.getFullYear()
-        );
-
-        this.prevMonthLastDate = new Date(
-            this.activeMonth.getFullYear(),
-            this.activeMonth.getMonth(), 0
-        );
-
-        this.prevMonthStartDay = this.prevMonthLastDate.getDate() - this.activeMonth.getDay() + 1;
-
-        this.nextMonth = new Date( this.activeMonth.getFullYear(), this.activeMonth.getMonth() + 1, 1);
-
-    }
-
-    setDays() {
-        this.nextMonthStartDay = 1;
-
-        this.days = this.days.map( (el, index) => {
-            let date;
-            let clickable = true;
-            const day = (index - this.activeMonth.getDay() ) + 1;
-
-            if ( this.type && day < 1 || this.type && day > this.daysInMonth) {
-                date = false;
-            } else {
-                // https://stackoverflow.com/questions/41340836/why-does-date-accept-negative-values
-                // TLDR; new Date(2018, 6, -2) will subtract two days from year(2018) month(6 - July in zero-base) thus date is Jun 28 2018
-                // TLDR; new Date(2018, 8, 133) will add 133 days from year(2018) month(8 - Sep in zero-base) thus date is Jan 11 2019
-                date = new Date(
-                    this.activeMonth.getFullYear(),
-                    this.activeMonth.getMonth(),
-                    day
-                );
-
-                // Disable clicks on previous days from today and disabled dates
-                if ( date.getTime() < this.today.getTime() ||
-                    ( this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0 ) ) {
-                    clickable = false;
-                }
-
-            }
-
-            return new DateModel(date, this.getClass(date), clickable, index);
-
-        });
-    }
-
-    setDayClasses() {
-        this.days = this.days.map( (el, i) => {
-            el.classes = this.getClass(el.date);
-            return el;
-        });
-    }
-
-    getDaysInMonth(month, year): number {
-        // Setting day parameter to 0 means one day less than first day of the month.
-        return new Date(year, month, 0).getDate();
-    }
-
-    selectDay( event: any ) {
-
-        this.selectedDate = event.obj.date;
-
-        if ( this.type === 'range') {
-            this.registerClicks(event);
-        }
-
-        if ( event.obj.date.getMonth() > this.activeMonth.getMonth() ||
-            event.obj.date.getMonth() < this.activeMonth.getMonth() ) {
-                
-            this.activeMonth.setMonth( event.obj.date.getMonth() );
-            this.reInitCalendar();
-        }
-
-        this.setDayClasses();
-        this.dateSelected.emit({
-            selected: event.obj.date,
-            from: this.rangeStart,
-            to: this.rangeEnd
-        });
-    }
-
-    registerClicks( event: any) {
-
-        if( this.rangeStart && ( event.obj.date.getTime() <= this.rangeStart.getTime() ) ) {
-            this.resetClicks();
-        } 
-       
-        if ( !this.clickStarted ) {
-            this.clickStarted = true;
-            this.rangeStart = event.obj.date;
-            this.rangeEnd = null;
-        } else {
-            this.clickStarted = false;
-            this.rangeEnd = event.obj.date;
-            this.dateHovered = null;
-        }
-
-        if ( this.rangeEnd && this.disabledDates && this.isDateBetweenDisabledDates( this.rangeEnd ) ) {
-            this.resetClicks();
-        }
-    }
-
-    resetClicks() {
-        this.clickStarted = false;
-        this.rangeStart = null;
-        this.rangeEnd = null;
-        this.dateHovered = null;
-        this.selectedDate = null;
-    }
-
-    highlightDay(event: Event, day: any) {
-
-        if ( this.type !== 'range') {
-            return;
-        }
-
-        if ( this.clickStarted && event.type === 'mouseenter') {
-            this.dateHovered = day.date;
-        }
-
-        if ( this.clickStarted ) {
-            this.setDayClasses();
-        }
-
-    }
-
-    cycleMonth(event, type) {
-        event.preventDefault();
-
-        if ( type === 'next') {
-            this.activeMonth.setMonth( this.activeMonth.getMonth() + 1);
-        }
-
-        if ( type === 'prev') {
-            this.activeMonth.setMonth( this.activeMonth.getMonth() - 1);
-        }
-
-        this.reInitCalendar();
-    }
-
-    getClass( date: Date) {
-
-        let classes = [];
-
-        if (date) {
-
-            if ( date.getMonth() < this.activeMonth.getMonth() || date.getMonth() > this.activeMonth.getMonth() ) {
-                classes.push('off-month');
-            }
-
-            if ( date.getTime() === this.today.getTime() ) {
-                classes.push('today');
-            }
-
-            if ( this.isDateDisabled( date ) ) {
-                classes.push('disabled');
-            }
-
-            if (
-                this.selectedDate && date.getTime() === this.selectedDate.getTime() ||
-                this.rangeStart && this.rangeStart.getTime() === date.getTime() ||
-                this.rangeEnd && this.rangeEnd.getTime() === date.getTime()
-            ) {
-                classes.push('selected');
-            }
-
-            if ( this.type === 'range') {
-                classes = this.getRangeClass(date, classes);
-            }
-
-        }
-
-        return classes;
-    }
-
-    getRangeClass( date: Date, classes: Array<string> ) {
-
-        if ( this.clickStarted &&
-            this.disabledDates &&
-            this.isDateBetweenDisabledDates( date ) ) {
-            classes.push('disabled');
-        }
-
-        if (
-            (
-                this.clickStarted && this.dateHovered &&
-                date.getTime() > this.rangeStart.getTime() &&
-                this.dateHovered && date.getTime() <= this.dateHovered.getTime()
-            ) || (
-                this.rangeStart && this.rangeEnd &&
-                date.getTime() > this.rangeStart.getTime() &&
-                date.getTime() < this.rangeEnd.getTime()
-            )
-          ) {
-            classes.push('highlight');
-        }
-
-        return classes;
-    }
-
-    isDateDisabled( date: Date ) {
-        return this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0;
-    }
-
-    isDateBetweenDisabledDates( date: Date ) {
-        let disabled = false;
-        for ( let x = 0; x <= this.disabledDates.length; x++) {
-            if ( this.rangeStart &&
-                this.disabledDates[x] > this.rangeStart.getTime() &&
-                date.getTime() >= this.disabledDates[x] ) {
-                disabled = true;
-                break;
-            }
-        }
-        return disabled;
-    }
-
-    // Year Month Selections
-
-    showMonthSelection( event ) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.hideSelections();
-        this.showMS = !this.showMS;
-    }
-
     showYearSelection( event ) {
         event.preventDefault();
         event.stopPropagation();
@@ -369,28 +374,28 @@ export class CalendarComponent implements OnInit {
             this.createYears();
         }
     }
-
+    
     hideSelections() {
         this.showMS = false;
         this.showYS = false;
     }
-
+    
     cycleYear( type: string ) {
         let start;
-
+        
         if ( type === 'prev') {
             start = this.years[0] - 9;
         }
-
+        
         if ( type === 'next') {
             start = this.years[this.years.length - 1] + 1;
         }
-
+        
         this.years = this.years.map( (el) => {
             return start++;
         });
     }
-
+    
     setMonth( event, month ) {
         event.preventDefault();
         event.stopPropagation(); // prevent click bubbling triggering top leve on-click outside.

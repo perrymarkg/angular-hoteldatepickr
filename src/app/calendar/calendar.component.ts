@@ -56,13 +56,13 @@ export class CalendarComponent implements OnInit {
     }
 
     isValidDateObj( date: any) {
-        return Object.prototype.toString.call(this.date) === '[object Date]';
+        return Object.prototype.toString.call(date) === '[object Date]';
     }
 
     initDates() {
 
         // Set the selected date and the activemonth date object
-        if ( !this.type && this.date ) {
+        if ( !this.type && this.date && this.isValidDateObj(this.date) ) {
             if ( typeof this.date === 'string') {
                 this.selectedDate = new Date(this.date);
                 this.activeMonth = new Date(this.date);
@@ -88,36 +88,28 @@ export class CalendarComponent implements OnInit {
 
     initDisabledDates() {
         if ( this.disabledDates ) {
-            this.disabledDates = this.disabledDates.map( (date: any) => {
+            this.disabledDates = this.disabledDates.map( (date: any, index) => {
                 let d;
 
                 if ( typeof date === 'string') {
                     d = new Date( date );
-                } else if ( this.isValidDateObj(date) ) {
+                } else {
                     d = date;
                 }
 
-                d.setHours(0, 0, 0, 0);
                 if ( this.selectedDate && d.getTime() === this.selectedDate.getTime() ) {
                     console.warn('Selected Date is part of disabled date');
                 }
-                return d.getTime();
+                // @Todo throw error on invalid date object or clean up invalid object
+                if ( this.isValidDateObj(d) ) {
+                    d.setHours(0, 0, 0, 0);
+                    return d.getTime();
+                }
+
             } );
         }
     }
 
-    createYears() {
-        const total = 9;
-        const limit = 4;
-        this.years = new Array(total).fill(0).map( (el, index) => {
-            if ( index <= limit) {
-                el = this.activeMonth.getFullYear() - (limit - index);
-            } else {
-                el = this.activeMonth.getFullYear() + (index - limit );
-            }
-            return el;
-        });
-    }
 
     initCalendar() {
         this.setMonths();
@@ -169,14 +161,13 @@ export class CalendarComponent implements OnInit {
 
                 // Disable clicks on previous days from today and disabled dates
                 if ( date.getTime() < this.today.getTime() ||
-                    ( this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0 ) ) {
+                ( this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0 ) ) {
                     clickable = false;
                 }
 
             }
 
             return new DateModel(date, this.getClass(date), clickable, index);
-
         });
     }
 
@@ -314,10 +305,10 @@ export class CalendarComponent implements OnInit {
         if ( this.clickStarted &&
             this.disabledDates &&
             this.isDateBetweenDisabledDates( date ) ) {
-            classes.push('disabled');
-        }
+                classes.push('disabled');
+            }
 
-        if (
+            if (
             (
                 this.clickStarted && this.dateHovered &&
                 date.getTime() > this.rangeStart.getTime() &&
@@ -327,7 +318,7 @@ export class CalendarComponent implements OnInit {
                 date.getTime() > this.rangeStart.getTime() &&
                 date.getTime() < this.rangeEnd.getTime()
             )
-          ) {
+        ) {
             classes.push('highlight');
         }
 
@@ -344,20 +335,33 @@ export class CalendarComponent implements OnInit {
             if ( this.rangeStart &&
                 this.disabledDates[x] > this.rangeStart.getTime() &&
                 date.getTime() >= this.disabledDates[x] ) {
-                disabled = true;
-                break;
+                    disabled = true;
+                    break;
+                }
             }
+            return disabled;
         }
-        return disabled;
+
+        // Year Month Selections
+
+        showMonthSelection( event ) {
+            event.preventDefault();
+            event.stopPropagation();
+            this.hideSelections();
+        this.showMS = !this.showMS;
     }
 
-    // Year Month Selections
-
-    showMonthSelection( event ) {
-        event.preventDefault();
-        event.stopPropagation();
-        this.hideSelections();
-        this.showMS = !this.showMS;
+    createYears() {
+        const total = 9;
+        const limit = 4;
+        this.years = new Array(total).fill(0).map( (el, index) => {
+            if ( index <= limit) {
+                el = this.activeMonth.getFullYear() - (limit - index);
+            } else {
+                el = this.activeMonth.getFullYear() + (index - limit );
+            }
+            return el;
+        });
     }
 
     showYearSelection( event ) {

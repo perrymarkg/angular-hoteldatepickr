@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CalendarComponent } from './calendar/calendar.component';
 
 @Component({
@@ -6,9 +6,18 @@ import { CalendarComponent } from './calendar/calendar.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit{
   title = 'app';
   dateTest = new Date('2018-08-25');
 
-  disabledDates = ['2018-04-24', '2018-04-19'];
+  disabledDatesString = ['2018-08-24', '2018-04-19'];
+  disabledDates = [new Date('2018-08-24'), new Date('2018-08-27')];
+  
+  ngOnInit() {
+    /* this.disabledDatesString.map( el => {
+      this.disabledDates.push(new Date(el));
+    });
+
+    console.log(this.disabledDates, this.disabledDatesString); */
+  }
 }

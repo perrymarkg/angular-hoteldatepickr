@@ -22,10 +22,21 @@ describe('CalendarComponent Tests', () => {
         this.component = this.fixture.debugElement.componentInstance;
     }) );
 
-
-
     it('should create the app', async(() => {
         expect(this.component).toBeTruthy();
+    }));
+
+    it('should create date', async( () => {
+        const dateStr = "2018-08-28";
+        const dateObj = new Date(dateStr);
+        dateObj.setHours(0, 0, 0, 0);
+
+        const testDateStr = this.component.createDate(dateStr);
+        const testDateObj = this.component.createDate(dateObj);
+
+        expect( testDateStr.getTime() ).toBe( dateObj.getTime() );
+        expect( testDateObj.getTime() ).toBe( dateObj.getTime() );
+
     }));
 
     it('should get days in months', async(() => {
@@ -34,18 +45,20 @@ describe('CalendarComponent Tests', () => {
         const days = this.component.getDaysInMonth(9, 2018);
         expect(days).toBe(30);
     }));
+    
 
     it('should set months', async( () => {
-        const selectedDate = new Date('2018-05-23');
-        selectedDate.setHours(0, 0, 0, 0);
+        
+        const dateStr = "2018-06-13";
+        const dateObj = new Date( dateStr + " 0:00:00");
 
-        this.component.date = new Date(selectedDate);
-
+        this.component.date = dateObj;
+        
         this.fixture.detectChanges();
 
-        expect( this.component.daysInMonth ).toBe(31);
-        expect( this.component.prevMonthLastDay ).toBe( 30 );
-        expect( this.component.prevMonthStartDay ).toBe(29);
+        expect( this.component.daysInMonth ).toBe( 30 );
+        expect( this.component.prevMonthLastDay ).toBe( 31 );
+        expect( this.component.prevMonthStartDay ).toBe( 27 );
 
     }));
 
@@ -68,21 +81,7 @@ describe('CalendarComponent Tests', () => {
 
     }));
 
-    it('should initialize default variables', async( () => {
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        // Active month to first day of today
-        const activeMonth = new Date(today);
-        activeMonth.setDate(1);
-
-        this.fixture.detectChanges();
-
-        expect( this.component.activeMonth.getTime() ).toBe( activeMonth.getTime() );
-    }));
-
-    it('should initialize vars when date is passed', async( () => {
+    it('should set days', async( () => {
         const date = new Date('2018-08-28');
         date.setHours(0, 0, 0, 0);
         this.component.date = date;
@@ -97,9 +96,9 @@ describe('CalendarComponent Tests', () => {
 
     it('should validate date object', async( () => {
         const date = new Date('2015-04-15');
-        const r = this.component.isValidDateObj(date);
 
-        expect(r).toBe(true);
+        expect( this.component.isValidDateObj(date) ).toBe(true);
+        expect( this.component.isValidDateObj('any') ).toBe(false);
     }));
 
     it('should initialize disabled dates | string', async( () => {

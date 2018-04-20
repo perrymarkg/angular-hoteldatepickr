@@ -53,6 +53,7 @@
             <div 
                 *ngFor="let day of days; let i = index" 
                 class="col-day" 
+                (mouseenter)="highlightDay($event, day)"
                 >
                 <app-calendar-day 
                     [day]="day"

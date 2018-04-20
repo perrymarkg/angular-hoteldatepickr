@@ -8,6 +8,7 @@ import { CalendarComponent } from './calendar/calendar.component';
 import { DatePickrComponent } from './datepickr/date-pickr.component';
 import { RangePickrComponent } from './rangepickr/range-pickr.component';
 import { CalendarDayComponent } from './calendar-day/calendar-day.component';
+import { CalendarRangeComponent } from './calendar-range/calendar-range.component';
 
 // Third-Party
 import { ClickOutsideModule } from 'ng4-click-outside';
@@ -19,7 +20,8 @@ import { ClickOutsideModule } from 'ng4-click-outside';
     CalendarComponent,
     DatePickrComponent,
     RangePickrComponent,
-    CalendarDayComponent
+    CalendarDayComponent,
+    CalendarRangeComponent
   ],
   imports: [
     BrowserModule,

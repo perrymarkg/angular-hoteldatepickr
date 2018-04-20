@@ -135,48 +135,24 @@ export class CalendarComponent implements OnInit {
 
         this.prevMonthStartDay = this.prevMonthLastDay - this.activeMonth.getDay() + 1;
 
-        // Do we use this?
-        // this.nextMonth = new Date( this.activeMonth.getFullYear(), this.activeMonth.getMonth() + 1, 1);
-
     }
 
     setDays() {
-        // this.nextMonthStartDay = 1;
-
         this.days = this.days.map( (el, index) => {
-            let date;
-            let clickable = true;
-            const day = (index - this.activeMonth.getDay() ) + 1;
-
-
-            if ( this.type && day < 1 || this.type && day > this.daysInMonth) {
-                date = false;
-            } else {
-                // https://stackoverflow.com/questions/41340836/why-does-date-accept-negative-values
-                // TLDR; new Date(2018, 6, -2) will subtract two days from year(2018) month(6 - July in zero-base) thus date is Jun 28 2018
-                // TLDR; new Date(2018, 8, 133) will add 133 days from year(2018) month(8 - Sep in zero-base) thus date is Jan 11 2019
-                date = new Date(
-                    this.activeMonth.getFullYear(),
+            return this.createDateModel( 
+                    this.activeMonth.getFullYear(), 
                     this.activeMonth.getMonth(),
-                    day
+                    this.activeMonth.getDay(),
+                    index
                 );
-
-                // Disable clicks on previous days from today and disabled dates
-                if ( date.getTime() < this.today.getTime() ||
-                ( this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0 ) ) {
-                    clickable = false;
-                }
-
-            }
-
-            return new DateModel(date, this.getClass(date), clickable, index);
         });
     }
 
 
-    /* createDateMode(year: number, month: number, day: number) {
+    createDateModel(year: number, month: number, dayIndex: number, index: number) {
         let date: boolean | Date = false;
         let clickable = true;
+        const day = (index - dayIndex ) + 1;
 
         if ( this.type && day < 1 || this.type && day > this.daysInMonth) {
             date = false;
@@ -185,8 +161,8 @@ export class CalendarComponent implements OnInit {
             // TLDR; new Date(2018, 6, -2) will subtract two days from year(2018) month(6 - July in zero-base) thus date is Jun 28 2018
             // TLDR; new Date(2018, 8, 133) will add 133 days from year(2018) month(8 - Sep in zero-base) thus date is Jan 11 2019
             date = new Date(
-                this.activeMonth.getFullYear(),
-                this.activeMonth.getMonth(),
+                year,
+                month,
                 day
             );
 
@@ -199,7 +175,7 @@ export class CalendarComponent implements OnInit {
         }
 
         return new DateModel(date, this.getClass(date), clickable, index);
-    } */
+    }
 
     setDayClasses() {
         this.days = this.days.map( (el, i) => {
@@ -295,36 +271,35 @@ export class CalendarComponent implements OnInit {
         this.reInitCalendar();
     }
 
-    getClass( date: Date) {
+    getClass( date: any ) {
 
+        if( !date ) {
+            return;
+        }
         let classes = [];
 
-        if (date) {
+        if ( date.getMonth() < this.activeMonth.getMonth() || date.getMonth() > this.activeMonth.getMonth() ) {
+            classes.push('off-month');
+        }
 
-            if ( date.getMonth() < this.activeMonth.getMonth() || date.getMonth() > this.activeMonth.getMonth() ) {
-                classes.push('off-month');
-            }
+        if ( date.getTime() === this.today.getTime() ) {
+            classes.push('today');
+        }
 
-            if ( date.getTime() === this.today.getTime() ) {
-                classes.push('today');
-            }
+        if ( this.isDateDisabled( date ) ) {
+            classes.push('disabled');
+        }
 
-            if ( this.isDateDisabled( date ) ) {
-                classes.push('disabled');
-            }
+        if (
+            this.selectedDate && date.getTime() === this.selectedDate.getTime() ||
+            this.rangeStart && this.rangeStart.getTime() === date.getTime() ||
+            this.rangeEnd && this.rangeEnd.getTime() === date.getTime()
+        ) {
+            classes.push('selected');
+        }
 
-            if (
-                this.selectedDate && date.getTime() === this.selectedDate.getTime() ||
-                this.rangeStart && this.rangeStart.getTime() === date.getTime() ||
-                this.rangeEnd && this.rangeEnd.getTime() === date.getTime()
-            ) {
-                classes.push('selected');
-            }
-
-            if ( this.type === 'range') {
-                classes = this.getRangeClass(date, classes);
-            }
-
+        if ( this.type === 'range') {
+            classes = this.getRangeClass(date, classes);
         }
 
         return classes;

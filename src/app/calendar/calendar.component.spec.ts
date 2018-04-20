@@ -35,7 +35,6 @@ describe('CalendarComponent Tests', () => {
         expect(days).toBe(30);
     }));
 
-    // @Todo fix
     it('should set months', async( () => {
         const selectedDate = new Date('2018-05-23');
         selectedDate.setHours(0, 0, 0, 0);
@@ -47,6 +46,25 @@ describe('CalendarComponent Tests', () => {
         expect( this.component.daysInMonth ).toBe(31);
         expect( this.component.prevMonthLastDay ).toBe( 30 );
         expect( this.component.prevMonthStartDay ).toBe(29);
+
+    }));
+
+    it('should create date model', async( () => {
+        let model;
+        const selectedDate = new Date('2018-08-28');
+        const d1 = new Date('2018-07-29 0:00:00');
+        const d2 = new Date('2018-08-28 0:00:00');
+        const d3 = new Date('2018-08-15 0:00:00');
+
+        this.component.date = new Date(selectedDate);
+
+        this.fixture.detectChanges();
+        model = this.component.createDateModel(2018, 7, 3, 0);
+        expect( model.date.getTime() ).toBe( d1.getTime() );
+        model = this.component.createDateModel(2018, 7, 3, 30);
+        expect( model.date.getTime() ).toBe( d2.getTime() );
+        model = this.component.createDateModel(2018, 7, 3, 17);
+        expect( model.date.getTime() ).toBe( d3.getTime() );
 
     }));
 

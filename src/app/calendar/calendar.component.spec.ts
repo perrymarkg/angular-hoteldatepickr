@@ -37,16 +37,16 @@ describe('CalendarComponent Tests', () => {
 
     // @Todo fix
     it('should set months', async( () => {
-        const selectedDate = new Date('2018-04-23');
+        const selectedDate = new Date('2018-05-23');
         selectedDate.setHours(0, 0, 0, 0);
 
         this.component.date = new Date(selectedDate);
 
         this.fixture.detectChanges();
 
-        expect( this.component.activeMonth.getMonth() ).toBe( 3 );
-        expect( this.component.activeMonth.getDate() ).toBe( 1 );
-        expect( this.component.activeMonth.getFullYear() ).toBe( 2018 );
+        expect( this.component.daysInMonth ).toBe(31);
+        expect( this.component.prevMonthLastDay ).toBe( 30 );
+        expect( this.component.prevMonthStartDay ).toBe(29);
 
     }));
 
@@ -59,13 +59,9 @@ describe('CalendarComponent Tests', () => {
         const activeMonth = new Date(today);
         activeMonth.setDate(1);
 
-        const nextMonth = new Date(activeMonth);
-        nextMonth.setMonth( activeMonth.getMonth() + 1 );
-
         this.fixture.detectChanges();
 
         expect( this.component.activeMonth.getTime() ).toBe( activeMonth.getTime() );
-        expect( this.component.nextMonth.getTime() ).toBe( nextMonth.getTime() );
     }));
 
     it('should initialize vars when date is passed', async( () => {

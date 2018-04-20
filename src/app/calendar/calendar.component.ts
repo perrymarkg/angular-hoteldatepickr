@@ -25,11 +25,11 @@ export class CalendarComponent implements OnInit {
     activeMonth: Date;
     daysInMonth: number;
 
-    prevMonthLastDate: Date;
+    prevMonthLastDay: number;
     prevMonthStartDay: number;
 
     nextMonth: Date;
-    nextMonthStartDay: number;
+    // nextMonthStartDay: number;
 
     showMS = false; // Month Selection
     showYS = false; // Year Selection
@@ -128,24 +128,26 @@ export class CalendarComponent implements OnInit {
             this.activeMonth.getFullYear()
         );
 
-        this.prevMonthLastDate = new Date(
-            this.activeMonth.getFullYear(),
-            this.activeMonth.getMonth(), 0
+        this.prevMonthLastDay = this.getDaysInMonth(
+            this.activeMonth.getMonth(),
+            this.activeMonth.getFullYear()
         );
 
-        this.prevMonthStartDay = this.prevMonthLastDate.getDate() - this.activeMonth.getDay() + 1;
+        this.prevMonthStartDay = this.prevMonthLastDay - this.activeMonth.getDay() + 1;
 
-        this.nextMonth = new Date( this.activeMonth.getFullYear(), this.activeMonth.getMonth() + 1, 1);
+        // Do we use this?
+        // this.nextMonth = new Date( this.activeMonth.getFullYear(), this.activeMonth.getMonth() + 1, 1);
 
     }
 
     setDays() {
-        this.nextMonthStartDay = 1;
+        // this.nextMonthStartDay = 1;
 
         this.days = this.days.map( (el, index) => {
             let date;
             let clickable = true;
             const day = (index - this.activeMonth.getDay() ) + 1;
+
 
             if ( this.type && day < 1 || this.type && day > this.daysInMonth) {
                 date = false;
@@ -170,6 +172,34 @@ export class CalendarComponent implements OnInit {
             return new DateModel(date, this.getClass(date), clickable, index);
         });
     }
+
+
+    /* createDateMode(year: number, month: number, day: number) {
+        let date: boolean | Date = false;
+        let clickable = true;
+
+        if ( this.type && day < 1 || this.type && day > this.daysInMonth) {
+            date = false;
+        } else {
+            // https://stackoverflow.com/questions/41340836/why-does-date-accept-negative-values
+            // TLDR; new Date(2018, 6, -2) will subtract two days from year(2018) month(6 - July in zero-base) thus date is Jun 28 2018
+            // TLDR; new Date(2018, 8, 133) will add 133 days from year(2018) month(8 - Sep in zero-base) thus date is Jan 11 2019
+            date = new Date(
+                this.activeMonth.getFullYear(),
+                this.activeMonth.getMonth(),
+                day
+            );
+
+            // Disable clicks on previous days from today and disabled dates
+            if ( date.getTime() < this.today.getTime() ||
+            ( this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0 ) ) {
+                clickable = false;
+            }
+
+        }
+
+        return new DateModel(date, this.getClass(date), clickable, index);
+    } */
 
     setDayClasses() {
         this.days = this.days.map( (el, i) => {

@@ -5,6 +5,7 @@ span, a {
 }
 a {
     color:#333333;
+    text-decoration: none;
 }
 a.disabled {
     text-decoration: line-through;
@@ -34,6 +35,10 @@ a.disabled:hover {
     text-decoration: line-through;
 }
 span {
+    color:#aaa;
+}
+span.off-month {
+    background:#e7e7e7;
     color:#aaa;
 }
 span.disabled {

@@ -35,11 +35,12 @@ export class CalendarComponent implements OnInit {
     daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     years: Array<number>;
 
-    constructor( private ds: DateService) {
-        this.today = this.ds.today();
+    constructor( protected ds: DateService) {
+        
     }
 
     ngOnInit() {
+        this.today = this.ds.today();
         this.initDisabledDates();
         this.initDates();
         this.setMonths();
@@ -185,7 +186,7 @@ export class CalendarComponent implements OnInit {
         this.reInitCalendar();
     }
 
-    getClass( date: any ) {
+    getClass( date: any, setSelected?: boolean ) {
 
         if( !date ) {
             return;
@@ -205,7 +206,7 @@ export class CalendarComponent implements OnInit {
             classes.push('disabled');
         }
 
-        if ( this.selectedDate && date.getTime() === this.selectedDate.getTime() ) {
+        if ( !setSelected && this.selectedDate && date.getTime() === this.selectedDate.getTime() ) {
             classes.push('selected')
         }
 

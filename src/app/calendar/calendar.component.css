@@ -1,5 +1,9 @@
+a {
+    text-decoration: none;
+}
 .calendar-wrapper {
     width:100%;
+    max-width: 300px;
     padding:.3em;
     border:1px solid #cccccc;
     border-radius: 3px;

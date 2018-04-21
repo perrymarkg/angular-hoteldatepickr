@@ -10,6 +10,8 @@ import { RangePickrComponent } from './rangepickr/range-pickr.component';
 import { CalendarDayComponent } from './calendar-day/calendar-day.component';
 import { CalendarRangeComponent } from './calendar-range/calendar-range.component';
 
+import { DateService } from './services/date.service';
+
 // Third-Party
 import { ClickOutsideModule } from 'ng4-click-outside';
 
@@ -28,7 +30,7 @@ import { ClickOutsideModule } from 'ng4-click-outside';
     ClickOutsideModule,
     FormsModule
   ],
-  providers: [DatePipe],
+  providers: [DatePipe, DateService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

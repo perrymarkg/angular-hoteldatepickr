@@ -1,6 +1,6 @@
 import { Component, OnInit, Output, Input, EventEmitter } from '@angular/core';
 import { DateModel } from '../date.model';
-import { DatePipe } from '@angular/common';
+import { DateService } from '../services/date.service';
 
 @Component({
     selector: 'app-calendar',
@@ -17,7 +17,7 @@ export class CalendarComponent implements OnInit {
     @Input() disabledDates: Array<any>;
     selectedDate: Date;
 
-    today = new Date();
+    today: Date;
     totalDays = 35;
     days: Array<any>;
 
@@ -35,8 +35,8 @@ export class CalendarComponent implements OnInit {
     daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     years: Array<number>;
 
-    constructor(private dp: DatePipe) {
-        this.today.setHours(0, 0, 0, 0);
+    constructor( private ds: DateService) {
+        this.today = this.ds.today();
     }
 
     ngOnInit() {
@@ -46,31 +46,14 @@ export class CalendarComponent implements OnInit {
         this.setDays();
     }
 
-    isValidDateObj( date: any) {
-        return Object.prototype.toString.call(date) === '[object Date]';
-    }
-
-    createDate( date: any ) {
-        let result;
-        if( typeof date === 'string') {
-            result = new Date(date);
-        } else if ( this.isValidDateObj(date) ) {
-            result = new Date( date.getTime() )
-        } else {
-            throw new Error('Invalid date created');
-        }
-        result.setHours(0, 0, 0, 0);
-        return result;
-    }
-
     initDates() {
 
         if ( this.date ) {
-            this.selectedDate = this.createDate( this.date );
-            this.activeMonth = this.createDate( this.date );
+            this.selectedDate = this.ds.createDate( this.date );
+            this.activeMonth = this.ds.createDate( this.date );
         } else {
-            this.selectedDate = this.createDate( this.today );
-            this.activeMonth = this.createDate( this.today );
+            this.selectedDate = this.ds.createDate( this.today );
+            this.activeMonth = this.ds.createDate( this.today );
         }
 
         this.days = new Array( this.totalDays ).fill(0);
@@ -81,22 +64,13 @@ export class CalendarComponent implements OnInit {
     initDisabledDates() {
         if ( this.disabledDates ) {
             this.disabledDates = this.disabledDates.map( (date: any, index) => {
-                let d;
-
-                if ( typeof date === 'string') {
-                    d = new Date( date );
-                } else {
-                    d = date;
-                }
+                const d = this.ds.createDate(date);
 
                 if ( this.selectedDate && d.getTime() === this.selectedDate.getTime() ) {
                     console.warn('Selected Date is part of disabled date');
                 }
-                // @Todo throw error on invalid date object or clean up invalid object
-                if ( this.isValidDateObj(d) ) {
-                    d.setHours(0, 0, 0, 0);
-                    return d.getTime();
-                }
+                
+                return d.getTime();
 
             } );
         }

@@ -1,13 +1,14 @@
-import { TestBed, async, fakeAsync } from '@angular/core/testing';
+import { TestBed, async, fakeAsync, ComponentFixture } from '@angular/core/testing';
 import { CalendarComponent } from './calendar.component';
 import { CalendarDayComponent } from '../calendar-day/calendar-day.component';
-import { DatePipe } from '@angular/common';
+import { DateService } from '../services/date.service';
+import { MockDateService } from '../services/mock-date.service';
 
-describe('CalendarComponent Tests', () => {
+describe('CalendarComponent Default Tests', () => {
 
-    const component = null;
-    const fixture: TestBed = null;
-    const dp = new DatePipe('en');
+    let component = null;
+    let fixture: ComponentFixture<CalendarComponent>;
+    let ds: DateService;
 
     beforeEach( async( () => {
         TestBed.configureTestingModule({
@@ -15,125 +16,97 @@ describe('CalendarComponent Tests', () => {
                 CalendarComponent,
                 CalendarDayComponent
             ],
-            providers: [DatePipe]
+            providers: [
+                {provide: DateService, useClass: MockDateService}
+            ]
         }).compileComponents();
 
-        this.fixture = TestBed.createComponent(CalendarComponent);
-        this.component = this.fixture.debugElement.componentInstance;
+        fixture = TestBed.createComponent(CalendarComponent);
+        component = fixture.debugElement.componentInstance;
+        ds = new DateService();
     }) );
 
     it('should create the app', async(() => {
-        expect(this.component).toBeTruthy();
-    }));
-
-    it('should create date', async( () => {
-        const dateStr = "2018-08-28";
-        const dateObj = new Date(dateStr);
-        dateObj.setHours(0, 0, 0, 0);
-
-        const testDateStr = this.component.createDate(dateStr);
-        const testDateObj = this.component.createDate(dateObj);
-
-        expect( testDateStr.getTime() ).toBe( dateObj.getTime() );
-        expect( testDateObj.getTime() ).toBe( dateObj.getTime() );
-
+        expect(component).toBeTruthy();
     }));
 
     it('should get days in months', async(() => {
-        this.fixture.detectChanges();
+        fixture.detectChanges();
         // Get days in september 2018
-        const days = this.component.getDaysInMonth(9, 2018);
+        const days = component.getDaysInMonth(9, 2018);
         expect(days).toBe(30);
     }));
     
-
     it('should set months', async( () => {
+        // Default date from mockservice aug 28 2018
+        
+        fixture.detectChanges();
+
+        expect( component.daysInMonth ).toBe( 31 );
+        expect( component.prevMonthLastDay ).toBe( 31 );
+        expect( component.prevMonthStartDay ).toBe( 29 );
+
+    }));
+
+    it('should set months when date is passed', async( () => {
         
         const dateStr = "2018-06-13";
-        const dateObj = new Date( dateStr + " 0:00:00");
+        const dateObj = ds.createDate(dateStr);
 
-        this.component.date = dateObj;
+        component.date = dateObj;
         
-        this.fixture.detectChanges();
+        fixture.detectChanges();
 
-        expect( this.component.daysInMonth ).toBe( 30 );
-        expect( this.component.prevMonthLastDay ).toBe( 31 );
-        expect( this.component.prevMonthStartDay ).toBe( 27 );
+        expect( component.daysInMonth ).toBe( 30 );
+        expect( component.prevMonthLastDay ).toBe( 31 );
+        expect( component.prevMonthStartDay ).toBe( 27 );
 
     }));
 
     it('should create date model', async( () => {
         let model;
-        const selectedDate = new Date('2018-08-28');
-        const d1 = new Date('2018-07-29 0:00:00');
-        const d2 = new Date('2018-08-28 0:00:00');
-        const d3 = new Date('2018-08-15 0:00:00');
+        const selectedDate = ds.createDate('2018-08-28');
+        const d1 = ds.createDate('2018-07-29');
+        const d2 = ds.createDate('2018-08-28');
+        const d3 = ds.createDate('2018-08-15');
 
-        this.component.date = new Date(selectedDate);
+        component.date = ds.createDate(selectedDate);
 
-        this.fixture.detectChanges();
-        model = this.component.createDateModel(2018, 7, 3, 0);
+        fixture.detectChanges();
+        model = component.createDateModel(2018, 7, 3, 0);
         expect( model.date.getTime() ).toBe( d1.getTime() );
-        model = this.component.createDateModel(2018, 7, 3, 30);
+        model = component.createDateModel(2018, 7, 3, 30);
         expect( model.date.getTime() ).toBe( d2.getTime() );
-        model = this.component.createDateModel(2018, 7, 3, 17);
+        model = component.createDateModel(2018, 7, 3, 17);
         expect( model.date.getTime() ).toBe( d3.getTime() );
 
     }));
 
     it('should set days', async( () => {
-        const date = new Date('2018-08-28');
-        date.setHours(0, 0, 0, 0);
-        this.component.date = date;
+        const date = ds.createDate('2018-08-28');
+        
+        component.date = date;
 
-        this.fixture.detectChanges();
-        expect( this.component.selectedDate.getTime() ).toBe( date.getTime() );
+        fixture.detectChanges();
+        expect( component.selectedDate.getTime() ).toBe( date.getTime() );
         date.setDate(1); // Aug 01 2018
-        expect( this.component.days[3].date.getTime() ).toBe( date.getTime() );
+        expect( component.days[3].date.getTime() ).toBe( date.getTime() );
         date.setDate(-2); // Jul 29 2018
-        expect(this.component.days[0].date.getTime() ).toBe( date.getTime() );
+        expect( component.days[0].date.getTime() ).toBe( date.getTime() );
     }));
 
-    it('should validate date object', async( () => {
-        const date = new Date('2015-04-15');
-
-        expect( this.component.isValidDateObj(date) ).toBe(true);
-        expect( this.component.isValidDateObj('any') ).toBe(false);
-    }));
-
-    it('should initialize disabled dates | string', async( () => {
+    it('should initialize disabled dates', async( () => {
         const disabledTimes = [1535385600000, 1473696000000, 1561651200000];
-        this.component.disabledDates = ['2018-08-28', '2016-09-13', '2019-06-28'];
-
-        this.fixture.detectChanges();
-
-        expect( this.component.disabledDates ).toEqual( disabledTimes );
-    }));
-
-    it('should initialize disabled dates | DateObj', async( () => {
-        const disabledTimes = [1535385600000, 1473696000000, 1561651200000];
-        this.component.disabledDates = [
-            new Date('2018-08-28'),
+        component.disabledDates = [
+            ds.createDate('2018-08-28'),
             new Date('2016-09-13'),
-            new Date('2019-06-28')
+            '2019-06-28'
         ];
 
-        this.fixture.detectChanges();
+        fixture.detectChanges();
 
-        expect( this.component.disabledDates ).toEqual( disabledTimes );
+        expect( component.disabledDates ).toEqual( disabledTimes );
     }));
 
-    it('should initialize disabled dates | Mixed', async( () => {
-        const disabledTimes = [1535385600000, 1473696000000];
-
-        this.component.disabledDates = [
-            new Date('2018-08-28'),
-            '2016-09-13',
-            // 'nan'
-        ];
-
-        this.fixture.detectChanges();
-
-        expect( this.component.disabledDates ).toEqual( disabledTimes );
-    }));
+    
 });

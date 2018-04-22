@@ -39,35 +39,36 @@ export class CalendarComponent implements OnInit {
         
     }
 
+    beforeInit() {}
+
     ngOnInit() {
+        
+        this.beforeInit();
+
         this.today = this.ds.today();
-        this.initDisabledDates();
-        this.initDates();
-        this.setMonths();
-        this.setDays();
-    }
+        
+        this.disabledDates = this.initDisabledDates( this.disabledDates );
+        
+        this.selectedDate = this.ds.createDate( this.date ? this.date : this.today );
+        
+        this.initActiveMonth();
 
-    initDates() {
+        this.daysInMonth = this.getDaysInMonth( this.activeMonth.getMonth() + 1, this.activeMonth.getFullYear() );
 
-        if ( this.date ) {
-            this.selectedDate = this.ds.createDate( this.date );
-            this.activeMonth = this.ds.createDate( this.date );
-        } else {
-            this.selectedDate = this.ds.createDate( this.today );
-            this.activeMonth = this.ds.createDate( this.today );
-        }
+        this.prevMonthLastDay = this.getDaysInMonth( this.activeMonth.getMonth(), this.activeMonth.getFullYear() );
 
-        this.days = new Array( this.totalDays ).fill(0);
-        this.activeMonth.setDate(1);
+        this.prevMonthStartDay = this.prevMonthLastDay - this.activeMonth.getDay() + 1;
+
+        this.days = this.createDays( new Array( this.totalDays ).fill(0), this.activeMonth );
 
     }
 
-    initDisabledDates() {
-        if ( this.disabledDates ) {
-            this.disabledDates = this.disabledDates.map( (date: any, index) => {
+    initDisabledDates( disabledDates: any, selectedDate?: Date ) {
+        if ( disabledDates ) {
+            return disabledDates.map( (date: any, index) => {
                 const d = this.ds.createDate(date);
 
-                if ( this.selectedDate && d.getTime() === this.selectedDate.getTime() ) {
+                if ( selectedDate && d.getTime() === selectedDate.getTime() ) {
                     console.warn('Selected Date is part of disabled date');
                 }
                 
@@ -75,16 +76,19 @@ export class CalendarComponent implements OnInit {
 
             } );
         }
+
+        return disabledDates;
+    }
+
+    initActiveMonth() {
+        this.activeMonth = this.ds.createDate( this.date ? this.date : this.today );
+        this.activeMonth.setDate(1);
     }
 
     reInitCalendar() {
+        
         this.activeMonth = new Date(this.activeMonth);
-        this.setMonths();
-        this.setDays();
-    }
-
-    setMonths() {
-
+        
         this.daysInMonth = this.getDaysInMonth(
             this.activeMonth.getMonth() + 1,
             this.activeMonth.getFullYear(),
@@ -96,15 +100,16 @@ export class CalendarComponent implements OnInit {
         );
 
         this.prevMonthStartDay = this.prevMonthLastDay - this.activeMonth.getDay() + 1;
-
+        
+        this.days = this.createDays( this.days, this.activeMonth );
     }
 
-    setDays() {
-        this.days = this.days.map( (el, index) => {
+    createDays( days: Array<any>, activeMonth: Date ) {
+        return days.map( (el, index) => {
             return this.createDateModel( 
-                    this.activeMonth.getFullYear(), 
-                    this.activeMonth.getMonth(),
-                    this.activeMonth.getDay(),
+                    activeMonth.getFullYear(), 
+                    activeMonth.getMonth(),
+                    activeMonth.getDay(),
                     index
                 );
         });
@@ -128,11 +133,7 @@ export class CalendarComponent implements OnInit {
                 day
             );
 
-            // Disable clicks on previous days from today and disabled dates
-            if ( date.getTime() < this.today.getTime() ||
-            ( this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0 ) ) {
-                clickable = false;
-            }
+            clickable = this.isDateClickable( date, this.today, this.disabledDates );
 
         }
 
@@ -186,7 +187,7 @@ export class CalendarComponent implements OnInit {
         this.reInitCalendar();
     }
 
-    getClass( date: any, setSelected?: boolean ) {
+    getClass( date: any ) {
 
         if( !date ) {
             return;
@@ -194,27 +195,44 @@ export class CalendarComponent implements OnInit {
 
         let classes = [];
 
-        if ( date.getMonth() < this.activeMonth.getMonth() || date.getMonth() > this.activeMonth.getMonth() ) {
+        if ( this.isDateOffMonth( date, this.activeMonth ) ) {
             classes.push('off-month');
         }
 
-        if ( date.getTime() === this.today.getTime() ) {
+        if ( this.isDateSame( date, this.today) ) {
             classes.push('today');
         }
 
-        if ( this.isDateDisabled( date ) ) {
+        if ( this.isDateDisabled( date, this.disabledDates ) ) {
             classes.push('disabled');
         }
 
-        if ( !setSelected && this.selectedDate && date.getTime() === this.selectedDate.getTime() ) {
+        if ( this.selectedDate && date.getTime() === this.selectedDate.getTime() ) {
             classes.push('selected')
         }
 
         return classes;
     }
 
-    isDateDisabled( date: Date ) {
-        return this.disabledDates && this.disabledDates.indexOf( date.getTime() ) >= 0;
+    isDateDisabled( date: Date, disabledDates: Array<any> ) {
+        return disabledDates && disabledDates.indexOf( date.getTime() ) >= 0;
+    }
+
+    isDateOffMonth( date: Date, activeMonth: Date) {
+        return date.getMonth() < activeMonth.getMonth() || date.getMonth() > activeMonth.getMonth();
+    }
+
+    isDateSame(date1: Date, date2: Date) {
+        return date1.getTime() === date2.getTime();
+    }
+
+    isDateClickable( date: Date, today: Date, disabledDates: Array<any>) {
+        return date.getTime() >= today.getTime() || (
+            disabledDates && disabledDates.indexOf( date.getTime() ) < 0 );
+    }
+
+    isDateSelected() {
+        
     }
 
     // Year Month Selections

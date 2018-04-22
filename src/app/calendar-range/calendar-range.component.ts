@@ -16,24 +16,21 @@ export class CalendarRangeComponent extends CalendarComponent {
     @Input() rangeStart: Date;
     @Input() rangeEnd: Date;
 
-    initDates() {
-
+    beforeInit() {
         this.hideOffMonths = true;
+    }
 
+    initActiveMonth() {
         if ( this.rangeStart && this.rangeEnd) {
             this.activeMonth = this.ds.createDate( this.rangeStart );
         } else {
             this.activeMonth = this.ds.createDate( this.today );
         }
-
-        this.days = new Array( this.totalDays ).fill(0);
-        this.activeMonth.setDate(1);
-
     }
 
     selectDay( event: any ) {
 
-        this.selectedDate = event.obj.date;
+        //this.selectedDate = event.obj.date;
         
         this.registerClicks(event);
 
@@ -74,7 +71,7 @@ export class CalendarRangeComponent extends CalendarComponent {
         this.rangeStart = null;
         this.rangeEnd = null;
         this.dateHovered = null;
-        this.selectedDate = null;
+        //this.selectedDate = null;
     }
 
     highlightDay(event: Event, day: any) {
@@ -95,7 +92,7 @@ export class CalendarRangeComponent extends CalendarComponent {
             return;
         }
         
-        let classes = super.getClass( date, true );;
+        let classes = super.getClass( date );
 
         classes = this.getRangeClass(date, classes);
 
@@ -136,7 +133,11 @@ export class CalendarRangeComponent extends CalendarComponent {
         return start && start.getTime() === date.getTime() || end && end.getTime() === date.getTime();
     }
 
-    isDateBetweenDisabledDates( date: Date, disabledDates: Array<any> ) {
+    /* isDateDisabled( clickStarted: Date | boolean, disabledDates: Array<any>) {
+        return true;
+    } */
+
+    isDateBetweenDisabledDates( date: Date, disabledDates: any ) {
         let disabled = false;
         for ( let x = 0; x <= disabledDates.length; x++) {
             if ( this.rangeStart &&

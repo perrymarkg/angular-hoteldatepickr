@@ -9,6 +9,7 @@ describe('CalendarComponent Default Tests', () => {
     let component = null;
     let fixture: ComponentFixture<CalendarComponent>;
     let ds: DateService;
+    let comp;
 
     beforeEach( async( () => {
         TestBed.configureTestingModule({
@@ -23,7 +24,9 @@ describe('CalendarComponent Default Tests', () => {
 
         fixture = TestBed.createComponent(CalendarComponent);
         component = fixture.debugElement.componentInstance;
-        ds = new DateService();
+        ds = new MockDateService();
+        comp = new CalendarComponent( ds );
+        
     }) );
 
     it('should create the app', async(() => {
@@ -106,6 +109,24 @@ describe('CalendarComponent Default Tests', () => {
         fixture.detectChanges();
 
         expect( component.disabledDates ).toEqual( disabledTimes );
+    }));
+
+    // @Todo fix 
+    it('should be clickable', async( () => {
+        let date = ds.createDate("2018-08-29");
+        
+        let r = comp.isDateClickable(date, ds.today());
+        let date2 = ds.createDate("2018-08-26");
+        let r2 = comp.isDateClickable( date2, ds.today() );
+        /* fixture.detectChanges();
+        
+        let r = component.isDateClickable( date, ds.today() );
+
+        date = ds.createDate("2018-08-27");
+        
+        console.log(r2); */
+        expect( r ).toBe( true );
+        expect( r2 ).toBe( false );
     }));
 
     

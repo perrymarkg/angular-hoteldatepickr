@@ -8,7 +8,7 @@ import { DateService } from '../services/date.service';
     styleUrls: ['./calendar.component.css']
 })
 export class CalendarComponent implements OnInit {
-
+    
     @Output() dateSelected = new EventEmitter<any>();
 
     @Input() hideOffMonths: boolean = false;
@@ -116,7 +116,12 @@ export class CalendarComponent implements OnInit {
     }
 
 
-    createDateModel(year: number, month: number, dayIndex: number, index: number) {
+    createDateModel(
+        year: number, 
+        month: number, 
+        dayIndex: number, 
+        index: number) 
+        {
         let date: boolean | Date = false;
         let clickable = true;
         const day = (index - dayIndex ) + 1;
@@ -228,7 +233,7 @@ export class CalendarComponent implements OnInit {
 
     isDateClickable( date: Date, today: Date, disabledDates: Array<any>) {
         return date.getTime() >= today.getTime() || (
-            disabledDates && disabledDates.indexOf( date.getTime() ) < 0 );
+            disabledDates && disabledDates.length > 0 && disabledDates.indexOf( date.getTime() ) < 0 );
     }
 
     isDateSelected() {

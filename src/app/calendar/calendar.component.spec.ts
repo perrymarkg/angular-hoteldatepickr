@@ -111,22 +111,22 @@ describe('CalendarComponent Default Tests', () => {
         expect( component.disabledDates ).toEqual( disabledTimes );
     }));
 
-    // @Todo fix 
-    it('should be clickable', async( () => {
+    it('should tell clickable date', async( () => {
+ 
         let date = ds.createDate("2018-08-29");
-        
-        let r = comp.isDateClickable(date, ds.today());
-        let date2 = ds.createDate("2018-08-26");
-        let r2 = comp.isDateClickable( date2, ds.today() );
-        /* fixture.detectChanges();
-        
-        let r = component.isDateClickable( date, ds.today() );
-
-        date = ds.createDate("2018-08-27");
-        
-        console.log(r2); */
+        let r = comp.isDateClickable(date, ds.today(), false);
         expect( r ).toBe( true );
-        expect( r2 ).toBe( false );
+        
+        date = ds.createDate("2018-08-26");
+        r = comp.isDateClickable( date, ds.today(), false );
+        expect( r ).toBe( false );
+
+        date = ds.createDate("2018-08-28");
+        r = comp.isDateClickable(date, ds.today(), false);
+        
+        fixture.detectChanges();
+
+        
     }));
 
     

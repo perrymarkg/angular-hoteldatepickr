@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { CalendarComponent } from '../calendar/calendar.component';
 import { DateService } from '../services/date.service';
 
@@ -16,25 +16,22 @@ export class CalendarRangeComponent extends CalendarComponent {
     @Input() rangeStart: Date;
     @Input() rangeEnd: Date;
 
-    beforeInit() {
-        this.hideOffMonths = true;
-    }
-
-    initActiveMonth() {
-        if ( this.rangeStart && this.rangeEnd) {
-            this.activeMonth = this.ds.createDate( this.rangeStart );
+    createActiveMonth(date, rangeStart = this.rangeStart, rangeEnd = this.rangeEnd) {
+        let activeMonth;
+        if ( rangeStart && rangeEnd ) {
+            activeMonth = this.ds.createDate( this.rangeStart );
         } else {
-            this.activeMonth = this.ds.createDate( this.today );
+            activeMonth = this.ds.createDate( this.today );
         }
+        activeMonth.setDate(1);
+        return activeMonth;
     }
 
     selectDay( event: any ) {
-
-        //this.selectedDate = event.obj.date;
         
         this.registerClicks(event);
 
-        this.shouldReInitialzeCalendar( event.obj.date );
+        // this.shouldReInitialzeCalendar( event.obj.date );
 
         this.setDayClasses();
         

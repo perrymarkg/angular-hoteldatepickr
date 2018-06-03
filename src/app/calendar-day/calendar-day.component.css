@@ -14,11 +14,13 @@ a.today {
     background:#fdcb6e;
     color:#fff;
 }
-a.highlight {
+a.highlight,
+a.off-month.highlight {
     background:#19B5FE;
     color:#fff;
 }
-a.selected {
+a.selected ,
+a.off-month.selected {
     background:#40739e;
     color:#fff;
 }

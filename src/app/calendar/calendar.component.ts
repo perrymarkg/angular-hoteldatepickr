@@ -44,15 +44,13 @@ export class CalendarComponent implements OnInit {
     ngOnInit() {
         
         this.beforeInit();
-
+        
         this.today = this.ds.today();
+        
+        this.activeMonth = this.createActiveMonth( this.date ? this.date : this.today );
         
         this.disabledDates = this.initDisabledDates( this.disabledDates );
         
-        this.selectedDate = this.ds.createDate( this.date ? this.date : this.today );
-        
-        this.initActiveMonth();
-
         this.daysInMonth = this.getDaysInMonth( this.activeMonth.getMonth() + 1, this.activeMonth.getFullYear() );
 
         this.prevMonthLastDay = this.getDaysInMonth( this.activeMonth.getMonth(), this.activeMonth.getFullYear() );
@@ -60,7 +58,7 @@ export class CalendarComponent implements OnInit {
         this.prevMonthStartDay = this.prevMonthLastDay - this.activeMonth.getDay() + 1;
 
         this.days = this.createDays( new Array( this.totalDays ).fill(0), this.activeMonth );
-
+        
     }
 
     initDisabledDates( disabledDates: any, selectedDate?: Date ) {
@@ -83,6 +81,12 @@ export class CalendarComponent implements OnInit {
     initActiveMonth() {
         this.activeMonth = this.ds.createDate( this.date ? this.date : this.today );
         this.activeMonth.setDate(1);
+    }
+
+    createActiveMonth( date, param1?: any, param2?: any ): any {
+        const activeMonth = this.ds.createDate( date );
+        activeMonth.setDate(1);
+        return activeMonth;
     }
 
     reInitCalendar() {
@@ -125,6 +129,7 @@ export class CalendarComponent implements OnInit {
         let date: boolean | Date = false;
         let clickable = true;
         const day = (index - dayIndex ) + 1;
+        
 
         if ( this.hideOffMonths && day < 1 || this.hideOffMonths && day > this.daysInMonth) {
             date = false;
